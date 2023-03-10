@@ -1,0 +1,118 @@
+<html>
+<head>
+<title></title>
+
+<script src="hostcalls.js" ></script>
+<script src="commonvarfunctions.js" ></script>
+
+<script ID="clientEventHandlersJS" LANGUAGE="javascript">
+
+/*Copyright 2022, Joseph R. Sodora. No part of this software may be copied or used in any other software without prior written consent.*/
+
+function OnloadPage() {
+
+	var GameID = JSON.parse(localStorage.getItem("lsMyGameID"));
+	var MyPlayerID = JSON.parse(localStorage.getItem("lsMyPlayerID"));
+	var GameIDPlayerID = String(GameID) + String(MyPlayerID);	
+
+	if (GameID == null) {
+		return;
+	}
+
+	/* hostcall Call */
+	objGame = hostcallGetGameData(GameID);
+
+	document.forms[0].tbYourMessage.value = "";
+	document.forms[0].textMessagesOutput.value = objGame.gameMessages;
+
+	/* hostcall Call */
+	objMyPlayer = hostcallGetPlayerData(GameIDPlayerID);
+
+	objMyPlayer.playerNewMessages = false;
+	objMyPlayer.playerMessage = " ";
+
+	/* hostcall Call */
+	objMyPlayer = hostcallUpdateOnePlayer(objMyPlayer);
+
+	return;
+} 
+
+function pbSendMessage_onclick() {
+
+	var GameID = JSON.parse(localStorage.getItem("lsMyGameID"));
+	var AliasName = localStorage.getItem("lsAliasName");
+
+	if (objGame == null) {
+		alert("You have not joined a game yet. Join or start a game.");
+		return;
+	}
+
+	if (tbYourMessage.value.length < 1) {
+		alert("Please enter a message before sending.");
+		return;
+	}
+
+	objMyPlayer.playerMessage = tbYourMessage.value;
+
+	/* hostcall Call */
+	objMyPlayer = hostcallMessageNotice(objMyPlayer);
+
+	OnloadPage()
+
+	return true;
+}
+
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" onload="OnloadPage()">
+
+<form name="fmMessages" id="fmMessages">
+  <font size="10" face="Arial">
+  <div id="div0" style="display:block" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="60%">
+    <tr>
+      <td colspan="2" width="456"><center><p><a href="infomessages.html"
+      onclick="PopUpDefinition('infomessages.html');return false" target><span><strong>Messages</strong></span></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Enter Your Message <a tabindex="-1" href="infoYourMessage.html"
+      onclick="PopUpDefinition('infoYourMessage.html');return false" target>(info)</a></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="100"><input id="tbYourMessage" name="tbYourMessage" size="100">
+    </td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td align="center" width="272"><input id="pbSendMessage" name="pbSendMessage" type="button"
+      value="Send Message" LANGUAGE="javascript" onclick="return pbSendMessage_onclick()"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Messages</td>
+    </tr>
+
+    <tr align="center"> 
+      <td align="center">   
+      <textarea tabindex="-1" name="textMessagesOutput" rows="15" cols="100" readOnly> </textarea>
+      </td>
+    </tr>
+    
+  </table>
+  </div> 
+
+</form>
+</font>
+</body>
+</html>

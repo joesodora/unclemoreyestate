@@ -1,0 +1,1407 @@
+<html><head><title>Uncle Maurey's Estate</title></head><base target='main'>
+
+<script src="hostcalls.js" ></script>
+<script src="commonvarfunctions.js" ></script>
+
+<script language='javascript'>
+
+function OnloadPage() {
+
+	var i;
+	var NumberPlayers;
+	var SavingsRate;
+	var LoanRate;
+	var TokenValue;
+	var GameOver = false;
+	var GameID = localStorage.getItem("lsMyGameID");
+	var MyPlayerID = localStorage.getItem("lsMyPlayerID");
+	document.getElementById("cmbSellBuy").value = 1;
+
+	/* hostcall Call */
+	objGame = hostcallGetGameData(GameID);
+
+	document.getElementById("div_gameover").style.display = "none";
+	document.getElementById("div_topline").style.display = "none";
+	document.getElementById("div_cycleround").style.display = "none";
+	document.getElementById("div_title").style.display = "none";
+	document.getElementById("div_rates").style.display = "none";
+	document.getElementById("div_ratesmessage").style.display = "none";
+	document.getElementById("div_players").style.display = "none";
+	document.getElementById("div_ratescompleted").style.display = "none";
+	document.getElementById("div_tokenvalue").style.display = "none";
+	document.getElementById("div_tokenmessage").style.display = "none";
+	document.getElementById("div_tokenvaluecompleted").style.display = "none";
+	document.getElementById("div_bids").style.display = "none";
+	document.getElementById("div_bidsmessage").style.display = "none";
+	document.getElementById("div_bidscompleted").style.display = "none";
+	document.getElementById("div_market_title").style.display = "none";
+	document.getElementById("div_market").style.display = "none";
+	document.getElementById("div_selltokens").style.display = "none";
+	document.getElementById("div_buytokens").style.display = "none";
+	document.getElementById("div_marketmessage").style.display = "none";
+
+	if (objGame == null || objGame.gameStarted == false) {
+		document.getElementById("div_topline").style.display = "block";
+		return;
+	}
+
+	if (objGame.gameOver == true) {
+		document.getElementById("div_gameover").style.display = "block";
+		return;
+	}
+
+	SavingsRate = Number(objGame.gameSavingsRate);
+	LoanRate = Number(objGame.gameLoanRate);
+	TokenValue = Number(objGame.gameNextTokenValue);
+
+	NumberPlayers = Number(objGame.gameNumberPlayers); 
+	document.forms[0].tbCycleRoundOutput.value = "CYCLE: " + objGame.gameCurrentCycle + " ROUND: " + objGame.gameCurrentRound;
+	
+	document.forms[0].tbSavingsRate.value = "0";
+	document.forms[0].tbLoanRate.value = "0";
+	document.forms[0].tbTokenValue.value = "0";
+	document.forms[0].tbBid.value = "0";
+	
+	/* hostcall Call */
+	arrPlayers = hostcallGetAllGamePlayers(GameID);
+
+	for (i = 0; i < arrPlayers.length; i++)   {
+		if (arrPlayers[i].playerID == MyPlayerID) {
+			objMyPlayer = arrPlayers[i];
+		}
+	}
+
+	if (objGame.gameSelectingRates == true) {
+		SelectRates();	
+	}
+
+	if (objGame.gameSelectingTokenValue == true) {
+		SelectTokenValue();	
+	}
+
+	if (objGame.gameSelectingBids == true) {
+		SelectBids();
+	} 
+
+	if (objGame.gameTokenMarket == true) {
+		TokenMarket();
+	} 
+
+	return;
+} 
+
+function pbEnterRates_onclick() {
+
+	var SavingsRateResult;
+	var LoanRateResult;
+
+	if (Number(tbSavingsRate.value) < 1 || Number(tbSavingsRate.value) > 15 || Number(tbSavingsRate.value) % 1 !== 0) {
+		SavingsRateResult = false;
+	}
+
+	if (Number(tbLoanRate.value) < 1 || Number(tbLoanRate.value) > 15 || Number(tbLoanRate.value) % 1 !== 0) {
+		LoanRateResult = false;
+	}
+
+	if (SavingsRateResult == false || LoanRateResult == false) {
+		alert("The Savings Rate and Loan Rate both must be between 1% and 15%, whole numbers only.");
+		return;
+	}
+
+	objMyPlayer.playerSavingsRateEntered = document.forms[0].tbSavingsRate.value;
+	objMyPlayer.playerLoanRateEntered = document.forms[0].tbLoanRate.value;
+
+	/* hostcall Call */
+	objGame = hostcallPlayerRatesEntry(objMyPlayer);
+
+	OnloadPage();
+
+	return; 
+} 
+
+function SelectRates() {
+
+	var i;
+	var x;
+	var CountRatesEntered = 0;
+	var GameID = localStorage.getItem("lsMyGameID");
+	var MyPlayerID = localStorage.getItem("lsMyPlayerID");
+
+	var SavingsRate = Number(objGame.gameSavingsRate);
+	var LoanRate = Number(objGame.gameLoanRate);
+	var AverageBid = Number(objGame.gameAverageBid);
+	var AverageBidDisplay = MakeCurrency(AverageBid);
+	
+	for (i = 0; i < arrPlayers.length; i++)   {
+		if (arrPlayers[i].playerID == MyPlayerID) {
+			objMyPlayer = arrPlayers[i];
+		}
+		if (arrPlayers[i].playerNewMessages == true && arrPlayers[i].playerID == MyPlayerID) {
+			document.forms[0].tbMessagesNotificationOutput.value = "    YOU HAVE NEW MESSAGES!";
+		} 
+		x = i + 1;
+		if (x == 1) {
+			document.forms[0].tbPlayer1Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerSavingsRateEntered > 0)) {
+				document.forms[0].tbPlayer1Output.value = document.forms[0].tbPlayer1Output.value + " (Entered)";
+				CountRatesEntered = CountRatesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer1Output.value = document.forms[0].tbPlayer1Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 2) {
+			document.forms[0].tbPlayer2Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerSavingsRateEntered > 0)) {
+				document.forms[0].tbPlayer2Output.value = document.forms[0].tbPlayer2Output.value + " (Entered)";
+				CountRatesEntered = CountRatesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer2Output.value = document.forms[0].tbPlayer2Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 3) {
+			document.forms[0].tbPlayer3Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerSavingsRateEntered > 0)) {
+				document.forms[0].tbPlayer3Output.value = document.forms[0].tbPlayer3Output.value + " (Entered)";
+				CountRatesEntered = CountRatesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer3Output.value = document.forms[0].tbPlayer3Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 4) {
+			document.forms[0].tbPlayer4Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerSavingsRateEntered > 0)) {
+				document.forms[0].tbPlayer4Output.value = document.forms[0].tbPlayer4Output.value + " (Entered)";
+				CountRatesEntered = CountRatesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer4Output.value = document.forms[0].tbPlayer4Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 5) {
+			document.forms[0].tbPlayer5Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerSavingsRateEntered > 0)) {
+				document.forms[0].tbPlayer5Output.value = document.forms[0].tbPlayer5Output.value + " (Entered)";
+				CountRatesEntered = CountRatesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer5Output.value = document.forms[0].tbPlayer5Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 6) {
+			document.forms[0].tbPlayer6Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerSavingsRateEntered > 0)) {
+				document.forms[0].tbPlayer6Output.value = document.forms[0].tbPlayer6Output.value + " (Entered)";
+				CountRatesEntered = CountRatesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer6Output.value = document.forms[0].tbPlayer6Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 7) {
+			document.forms[0].tbPlayer7Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerSavingsRateEntered > 0)) {
+				document.forms[0].tbPlayer7Output.value = document.forms[0].tbPlayer7Output.value + " (Entered)";
+				CountRatesEntered = CountRatesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer7Output.value = document.forms[0].tbPlayer7Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 8) {
+			document.forms[0].tbPlayer8Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerSavingsRateEntered > 0)) {
+				document.forms[0].tbPlayer8Output.value = document.forms[0].tbPlayer8Output.value + " (Entered)";
+				CountRatesEntered = CountRatesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer8Output.value = document.forms[0].tbPlayer8Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 9) {
+			document.forms[0].tbPlayer9Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerSavingsRateEntered > 0)) {
+				document.forms[0].tbPlayer9Output.value = document.forms[0].tbPlayer9Output.value + " (Entered)";
+				CountRatesEntered = CountRatesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer9Output.value = document.forms[0].tbPlayer9Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 10) {
+			document.forms[0].tbPlayer10Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerSavingsRateEntered > 0)) {
+				document.forms[0].tbPlayer10Output.value = document.forms[0].tbPlayer10Output.value + " (Entered)";
+				CountRatesEntered = CountRatesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer10Output.value = document.forms[0].tbPlayer10Output.value + " (Not Entered)";
+			}
+		}
+	}
+
+	if (Number(objMyPlayer.playerSavingsRateEntered) > 0) {
+		tbRatesNotificationOutput.value = "Your rates entries have been entered. Savings Rate: " + objMyPlayer.playerSavingsRateEntered + "%";
+		tbRatesNotificationOutput.value = tbRatesNotificationOutput.value + " Loan Rate: " + objMyPlayer.playerLoanRateEntered + "%";
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_ratesmessage").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+	} else {
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_title").style.display = "block";
+		document.getElementById("div_rates").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+	}
+
+	if (objMyPlayer.playerReadyNextStep == false && objGame.gameCurrentCycle > 0 && objGame.gameCurrentRound == 0) {
+		DisplayBids();
+		document.forms[0].tbBidsCompletedOutput.value = "All Bids have been entered. The average bid is: $" + AverageBidDisplay;
+		document.forms[0].tbReadyNextStepOutput.value = "Navigate to the Board and Stats screens to view results. Then Navigate back here and click Continue.";
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_title").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+		document.getElementById("div_bidscompleted").style.display = "block";
+		document.getElementById("div_rates").style.display = "none";
+		document.getElementById("div_ratesmessage").style.display = "none";
+	}
+
+	return;
+}
+
+function pbEnterTokenValue_onclick() {
+
+	var TokenValueResult;
+
+	if (Number(tbTokenValue.value) < 1 || Number(tbTokenValue.value) > 25 || Number(tbTokenValue.value) % 1 !== 0) {
+		TokenValueResult = false;
+	}
+
+	objMyPlayer.playerTokenValueEntered = document.forms[0].tbTokenValue.value;
+
+	/* hostcall Call */
+	objGame = hostcallPlayerTokenValueEntry(objMyPlayer);
+
+	OnloadPage();
+
+	return;
+}
+
+function SelectTokenValue() {
+
+	var i;
+	var x;
+	var CountTokenValuesEntered = 0;
+	var MyTokenValue;
+	var MyTokenValueDisplay;
+	
+	var GameID = localStorage.getItem("lsMyGameID");
+	var MyPlayerID = localStorage.getItem("lsMyPlayerID");
+
+	var SavingsRate = Number(objGame.gameSavingsRate);
+	var LoanRate = Number(objGame.gameLoanRate);
+	var TokenValue = Number(objGame.gameNextTokenValue);
+	var TokenValueDisplay;
+
+
+	for (i = 0; i < arrPlayers.length; i++)   {
+		if (arrPlayers[i].playerID == MyPlayerID) {
+			objMyPlayer = arrPlayers[i];
+			MyTokenValue = Number(objMyPlayer.playerTokenValueEntered) * 1000;
+		}
+		if (arrPlayers[i].playerNewMessages == true && arrPlayers[i].playerID == MyPlayerID) {
+			document.forms[0].tbMessagesNotificationOutput.value = "    YOU HAVE NEW MESSAGES!";
+		} 
+		x = i + 1;
+		if (x == 1) {
+			document.forms[0].tbPlayer1Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerTokenValueEntered > 0)) {
+				document.forms[0].tbPlayer1Output.value = document.forms[0].tbPlayer1Output.value + " (Entered)";
+				CountTokenValuesEntered = CountTokenValuesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer1Output.value = document.forms[0].tbPlayer1Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 2) {
+			document.forms[0].tbPlayer2Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerTokenValueEntered > 0)) {
+				document.forms[0].tbPlayer2Output.value = document.forms[0].tbPlayer2Output.value + " (Entered)";
+				CountTokenValuesEntered = CountTokenValuesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer2Output.value = document.forms[0].tbPlayer2Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 3) {
+			document.forms[0].tbPlayer3Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerTokenValueEntered > 0)) {
+				document.forms[0].tbPlayer3Output.value = document.forms[0].tbPlayer3Output.value + " (Entered)";
+				CountTokenValuesEntered = CountTokenValuesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer3Output.value = document.forms[0].tbPlayer3Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 4) {
+			document.forms[0].tbPlayer4Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerTokenValueEntered > 0)) {
+				document.forms[0].tbPlayer4Output.value = document.forms[0].tbPlayer4Output.value + " (Entered)";
+				CountTokenValuesEntered = CountTokenValuesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer4Output.value = document.forms[0].tbPlayer4Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 5) {
+			document.forms[0].tbPlayer5Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerTokenValueEntered > 0)) {
+				document.forms[0].tbPlayer5Output.value = document.forms[0].tbPlayer5Output.value + " (Entered)";
+				CountTokenValuesEntered = CountTokenValuesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer5Output.value = document.forms[0].tbPlayer5Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 6) {
+			document.forms[0].tbPlayer6Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerTokenValueEntered > 0)) {
+				document.forms[0].tbPlayer6Output.value = document.forms[0].tbPlayer6Output.value + " (Entered)";
+				CountTokenValuesEntered = CountTokenValuesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer6Output.value = document.forms[0].tbPlayer6Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 7) {
+			document.forms[0].tbPlayer7Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerTokenValueEntered > 0)) {
+				document.forms[0].tbPlayer7Output.value = document.forms[0].tbPlayer7Output.value + " (Entered)";
+				CountTokenValuesEntered = CountTokenValuesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer7Output.value = document.forms[0].tbPlayer7Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 8) {
+			document.forms[0].tbPlayer8Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerTokenValueEntered > 0)) {
+				document.forms[0].tbPlayer8Output.value = document.forms[0].tbPlayer8Output.value + " (Entered)";
+				CountTokenValuesEntered = CountTokenValuesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer8Output.value = document.forms[0].tbPlayer8Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 9) {
+			document.forms[0].tbPlayer9Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerTokenValueEntered > 0)) {
+				document.forms[0].tbPlayer9Output.value = document.forms[0].tbPlayer9Output.value + " (Entered)";
+				CountTokenValuesEntered = CountTokenValuesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer9Output.value = document.forms[0].tbPlayer9Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 10) {
+			document.forms[0].tbPlayer10Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerTokenValueEntered > 0)) {
+				document.forms[0].tbPlayer10Output.value = document.forms[0].tbPlayer10Output.value + " (Entered)";
+				CountTokenValuesEntered = CountTokenValuesEntered + 1;
+			} else {
+				document.forms[0].tbPlayer10Output.value = document.forms[0].tbPlayer10Output.value + " (Not Entered)";
+			}
+		}
+	}
+
+	SavingsRate = Number(objGame.gameSavingsRate);
+	LoanRate = Number(objGame.gameLoanRate);
+	TokenValueDislay = MakeCurrency(TokenValue);
+	MyTokenValueDisplay = MakeCurrency(MyTokenValue);
+	
+	document.forms[0].tbRatesCompletedOutput.value = "All Rates have been entered. Savings Rate: " + SavingsRate + "% Loan Rate: " + LoanRate + "%";
+	document.forms[0].tbTokenValueCompletedOutput.value = "All Token Values have been entered. Token Value: $" + TokenValueDisplay;
+
+	if (Number(objMyPlayer.playerTokenValueEntered) > 0) {
+		document.forms[0].tbTokenNotificationOutput.value = "Your Token Value has been entered. Token Value: $" + MyTokenValueDisplay;
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+		document.getElementById("div_ratescompleted").style.display = "block";
+		document.getElementById("div_tokenmessage").style.display = "block";
+	} else {
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_title").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+		document.getElementById("div_ratescompleted").style.display = "block";
+		document.getElementById("div_tokenvalue").style.display = "block";
+		document.getElementById("div_tokenmessage").style.display = "block";
+	}
+
+	return;
+}
+
+function pbEnterBid_onclick() {
+
+	var MyBidEntry; 
+	var GameID = localStorage.getItem("lsMyGameID");
+	var BidValidEntry = true;
+
+	if (Number(tbBid.value) < 5 || Number(tbBid.value) > 995 || Number(tbBid.value) % 5 !== 0) {
+		BidValidEntry = false;
+	}
+
+	if (BidValidEntry == false) {
+		alert("Your bid must be a value between 5 and 995 ($5,000 and $995,000) in whole numbers only and in multiples of 5. Example: 5, 10, 15, 20, etc.");
+		return;
+	}
+
+	MyBidEntry = document.forms[0].tbBid.value;
+
+	/* hostcall Call */
+	MyBidEntry = hostcallCheckDuplicateBid(MyBidEntry, GameID);
+
+	objMyPlayer.playerBidEntered = MyBidEntry;
+
+	/* hostcall Call */
+	objGame = hostcallPlayerBidEntry(objMyPlayer);
+
+	OnloadPage();
+
+	return;
+}
+
+
+function DisplayBids() {
+
+	var i;
+	var x;
+	var GameID = localStorage.getItem("lsMyGameID");
+	var MyPlayerID = localStorage.getItem("lsMyPlayerID");
+	var objSortedPlayers = arrPlayers;
+
+	objSortedPlayers.sort(function (a, b) {return a.playerBidCopy - b.playerBidCopy});
+	objSortedPlayers.reverse();
+
+	for (i = 0; i < objSortedPlayers.length; i++)   {
+		if (objSortedPlayers[i].playerNewMessages == true && objSortedPlayers[i].playerID == MyPlayerID) {
+			document.forms[0].tbMessagesNotificationOutput.value = "    YOU HAVE NEW MESSAGES!";
+		} 
+		x = i + 1;
+		if (x == 1) {
+			document.forms[0].tbPlayer1Output.value = objSortedPlayers[i].playerAliasName + " Bid: " + objSortedPlayers[i].playerBidCopy +",000";
+		}
+		if (x == 2) {
+			document.forms[0].tbPlayer2Output.value = objSortedPlayers[i].playerAliasName + " Bid: " + objSortedPlayers[i].playerBidCopy +",000";
+		}
+		if (x == 3) {
+			document.forms[0].tbPlayer3Output.value = objSortedPlayers[i].playerAliasName + " Bid: " + objSortedPlayers[i].playerBidCopy +",000";
+		}
+		if (x == 4) {
+			document.forms[0].tbPlayer4Output.value = objSortedPlayers[i].playerAliasName + " Bid: " + objSortedPlayers[i].playerBidCopy +",000";
+		}
+		if (x == 5) {
+			document.forms[0].tbPlayer5Output.value = objSortedPlayers[i].playerAliasName + " Bid: " + objSortedPlayers[i].playerBidCopy +",000";
+		}
+		if (x == 6) {
+			document.forms[0].tbPlayer6Output.value = objSortedPlayers[i].playerAliasName + " Bid: " + objSortedPlayers[i].playerBidCopy +",000";
+		}
+		if (x == 7) {
+			document.forms[0].tbPlayer7Output.value = objSortedPlayers[i].playerAliasName + " Bid: " + objSortedPlayers[i].playerBidCopy +",000";
+		}
+		if (x == 8) {
+			document.forms[0].tbPlayer8Output.value = objSortedPlayers[i].playerAliasName + " Bid: " + objSortedPlayers[i].playerBidCopy +",000";
+		}
+		if (x == 9) {
+			document.forms[0].tbPlayer9Output.value = objSortedPlayers[i].playerAliasName + " Bid: " + objSortedPlayers[i].playerBidCopy +",000";
+		}
+		if (x == 10) {
+			document.forms[0].tbPlayer10Output.value = objSortedPlayers[i].playerAliasName + " Bid: " + objSortedPlayers[i].playerBidCopy +",000";
+		}
+	}
+
+	objSortedPlayers.sort(function (a, b) {return a.playerID - b.playerID});
+
+	return;
+}
+
+function SelectBids() {
+
+	var i;
+	var x;
+	var CountBidsEntered = 0;
+	var MyTokenValue;
+	var MyBidEntered;
+	var MyBid;
+	var ReadyCount = 0;
+	var EveryoneReady = false;
+	var NumberPlayers;
+	var GameID = localStorage.getItem("lsMyGameID");
+	var MyPlayerID = localStorage.getItem("lsMyPlayerID");
+
+	var SavingsRate = Number(objGame.gameSavingsRate);
+	var LoanRate = Number(objGame.gameLoanRate);
+	var TokenValue = Number(objGame.gameNextTokenValue);
+	var TokenValueDisplay;
+	var AverageBid = Number(objGame.gameAverageBid);
+	var AverageBidDisplay = MakeCurrency(AverageBid);
+
+	bolAllBidsIn = objGame.gameAllBidsIn;
+	NumberPlayers = Number(objGame.gameNumberPlayers); 
+
+	for (i = 0; i < arrPlayers.length; i++)   {
+		if (arrPlayers[i].playerID == MyPlayerID) {
+			objMyPlayer = arrPlayers[i];
+			MyBidEntered = Number(objMyPlayer.playerBidEntered) * 1000;
+		}
+		if (arrPlayers[i].playerNewMessages == true && arrPlayers[i].playerID == MyPlayerID) {
+			document.forms[0].tbMessagesNotificationOutput.value = "    YOU HAVE NEW MESSAGES!";
+		} 
+		if (arrPlayers[i].playerReadyNextStep == true) {
+			ReadyCount = ReadyCount + 1;
+		}
+		x = i + 1;
+		if (x == 1) {
+			document.forms[0].tbPlayer1Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerBidEntered > 0)) {
+				document.forms[0].tbPlayer1Output.value = document.forms[0].tbPlayer1Output.value + " (Entered)";
+				CountBidsEntered = CountBidsEntered + 1;
+			} else {
+				document.forms[0].tbPlayer1Output.value = document.forms[0].tbPlayer1Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 2) {
+			document.forms[0].tbPlayer2Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerBidEntered > 0)) {
+				document.forms[0].tbPlayer2Output.value = document.forms[0].tbPlayer2Output.value + " (Entered)";
+				CountBidsEntered = CountBidsEntered + 1;
+			} else {
+				document.forms[0].tbPlayer2Output.value = document.forms[0].tbPlayer2Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 3) {
+			document.forms[0].tbPlayer3Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerBidEntered > 0)) {
+				document.forms[0].tbPlayer3Output.value = document.forms[0].tbPlayer3Output.value + " (Entered)";
+				CountBidsEntered = CountBidsEntered + 1;
+			} else {
+				document.forms[0].tbPlayer3Output.value = document.forms[0].tbPlayer3Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 4) {
+			document.forms[0].tbPlayer4Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerBidEntered > 0)) {
+				document.forms[0].tbPlayer4Output.value = document.forms[0].tbPlayer4Output.value + " (Entered)";
+				CountBidsEntered = CountBidsEntered + 1;
+			} else {
+				document.forms[0].tbPlayer4Output.value = document.forms[0].tbPlayer4Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 5) {
+			document.forms[0].tbPlayer5Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerBidEntered > 0)) {
+				document.forms[0].tbPlayer5Output.value = document.forms[0].tbPlayer5Output.value + " (Entered)";
+				CountBidsEntered = CountBidsEntered + 1;
+			} else {
+				document.forms[0].tbPlayer5Output.value = document.forms[0].tbPlayer5Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 6) {
+			document.forms[0].tbPlayer6Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerBidEntered > 0)) {
+				document.forms[0].tbPlayer6Output.value = document.forms[0].tbPlayer6Output.value + " (Entered)";
+				CountBidsEntered = CountBidsEntered + 1;
+			} else {
+				document.forms[0].tbPlayer6Output.value = document.forms[0].tbPlayer6Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 7) {
+			document.forms[0].tbPlayer7Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerBidEntered > 0)) {
+				document.forms[0].tbPlayer7Output.value = document.forms[0].tbPlayer7Output.value + " (Entered)";
+				CountBidsEntered = CountBidsEntered + 1;
+			} else {
+				document.forms[0].tbPlayer7Output.value = document.forms[0].tbPlayer7Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 8) {
+			document.forms[0].tbPlayer8Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerBidEntered > 0)) {
+				document.forms[0].tbPlayer8Output.value = document.forms[0].tbPlayer8Output.value + " (Entered)";
+				CountBidsEntered = CountBidsEntered + 1;
+			} else {
+				document.forms[0].tbPlayer8Output.value = document.forms[0].tbPlayer8Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 9) {
+			document.forms[0].tbPlayer9Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerBidEntered > 0)) {
+				document.forms[0].tbPlayer9Output.value = document.forms[0].tbPlayer9Output.value + " (Entered)";
+				CountBidsEntered = CountBidsEntered + 1;
+			} else {
+				document.forms[0].tbPlayer9Output.value = document.forms[0].tbPlayer9Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 10) {
+			document.forms[0].tbPlayer10Output.value = arrPlayers[i].playerAliasName;
+			if (Number(arrPlayers[i].playerBidEntered > 0)) {
+				document.forms[0].tbPlayer10Output.value = document.forms[0].tbPlayer10Output.value + " (Entered)";
+				CountBidsEntered = CountBidsEntered + 1;
+			} else {
+				document.forms[0].tbPlayer10Output.value = document.forms[0].tbPlayer10Output.value + " (Not Entered)";
+			}
+		}
+	}
+
+	if (ReadyCount == NumberPlayers) {
+		EveryoneReady = true;
+	}
+
+	document.forms[0].tbRatesCompletedOutput.value = "All Rates have been entered. Savings Rate: " + SavingsRate + "% Loan Rate: " + LoanRate + "%";
+	TokenValueDisplay = MakeCurrency(TokenValue);
+	document.forms[0].tbTokenValueCompletedOutput.value = "All Token Values have been entered. Token Value: $" + TokenValueDisplay;
+
+	if (Number(objMyPlayer.playerBidEntered) > 0) {
+		MyBidEntered = MakeCurrency(MyBidEntered);
+		document.forms[0].tbBidNotificationOutput.value = "Your Bid has been entered: $" + MyBidEntered;
+		document.forms[0].tbRatesCompletedOutput.value = "All Rates have been entered. Savings Rate: " + SavingsRate + "% Loan Rate: " + LoanRate + "%";
+		document.forms[0].tbTokenValueCompletedOutput.value = "All Token Values have been entered. Token Value for the Cycle: $" + TokenValueDisplay;
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+		document.getElementById("div_ratescompleted").style.display = "block";
+		document.getElementById("div_tokenvaluecompleted").style.display = "block";
+		document.getElementById("div_bidsmessage").style.display = "block";
+		document.getElementById("div_bidscompleted").style.display = "none";
+	} else {
+		document.forms[0].tbRatesCompletedOutput.value = "All Rates have been entered. Savings Rate: " + SavingsRate + "% Loan Rate: " + LoanRate + "%";
+		document.forms[0].tbTokenValueCompletedOutput.value = "All Token Values have been entered. Token Value for the Cycle: $" + TokenValueDisplay;
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_title").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+		document.getElementById("div_ratescompleted").style.display = "block";
+		document.getElementById("div_tokenvaluecompleted").style.display = "block";
+		document.getElementById("div_bids").style.display = "block";
+		document.getElementById("div_bidsmessage").style.display = "block";
+		document.getElementById("div_bidscompleted").style.display = "none";
+	}
+
+	if (bolAllBidsIn == true && objMyPlayer.playerReadyNextStep == false) {
+		DisplayBids();
+		document.forms[0].tbRatesCompletedOutput.value = "All Rates have been entered. Savings Rate: " + SavingsRate + "% Loan Rate: " + LoanRate + "%";
+		document.forms[0].tbTokenValueCompletedOutput.value = "All Token Values have been entered. Token Value for the Cycle: $" + TokenValueDisplay;
+		document.forms[0].tbBidsCompletedOutput.value = "All Bids have been entered. The average bid is: $" + AverageBidDisplay;
+		document.forms[0].tbReadyNextStepOutput.value = "Navigate to the Board and Stats screens to view results. Then Navigate back here and click Continue.";
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_title").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+		document.getElementById("div_ratescompleted").style.display = "block";
+		document.getElementById("div_tokenvaluecompleted").style.display = "block";
+		document.getElementById("div_bidsmessage").style.display = "block";
+		document.getElementById("div_bidscompleted").style.display = "block";
+		document.getElementById("div_bids").style.display = "none";
+	}
+
+	if (EveryoneReady == false && bolAllBidsIn == true && objMyPlayer.playerReadyNextStep == true) { 
+		DisplayBids();
+		document.forms[0].tbRatesCompletedOutput.value = "All Rates have been entered. Savings Rate: " + SavingsRate + "% Loan Rate: " + LoanRate + "%";
+		document.forms[0].tbTokenValueCompletedOutput.value = "All Token Values have been entered. Token Value for the Cycle: $" + TokenValueDisplay;
+		document.forms[0].tbBidsCompletedOutput.value = "All Bids have been entered. The average bid is: $" + AverageBidDisplay;
+		document.forms[0].tbReadyNextStepOutput.value = "All players are not yet ready for the next step. Click the ENTRIES button above to refresh the screen.";
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_title").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+		document.getElementById("div_ratescompleted").style.display = "block";
+		document.getElementById("div_tokenvaluecompleted").style.display = "block";
+		document.getElementById("div_bidsmessage").style.display = "block";
+		document.getElementById("div_bidscompleted").style.display = "block";
+		document.getElementById("div_bids").style.display = "none";
+		document.getElementById("pbContinue").style.display = "none";
+	}
+
+	return;
+}
+
+function pbContinue_onclick() {
+
+	objMyPlayer.playerReadyNextStep = true;
+
+	/* hostcall Call */
+	objMyPlayer = hostcallUpdateOnePlayer(objMyPlayer);
+
+	OnloadPage();
+
+	return;
+}
+
+function TokenMarket() {
+	
+	var i;
+	var AvailableToInvest;
+	var AvailableToInvestDisplay;
+	var TokenProceeds = 0;
+	var TokenProceedsDisplay;
+	var CurrentTokenValue;
+	var CurrentTokenValueDisplay;
+	var NextTokenValue; 
+	var NextTokenValueDisplay;
+	var TokenPercent;
+	var SavingsRate;
+	var SavingsRatePlus1;
+	var CombinedSavingsRate;
+	var LoanRate;
+	var LoanRatePlus1;
+	var CombinedLoanRate;
+	var TokensSold;
+	var TokensBought;
+	var TokenPurchaseAmount;
+	var TokenPurchaseAmountDisplay;
+	var MyPlayerID = localStorage.getItem("lsMyPlayerID");
+
+	for (i = 0; i < arrPlayers.length; i++)   {
+		if (arrPlayers[i].playerID == MyPlayerID) {
+			objMyPlayer = arrPlayers[i];
+		}
+	}
+
+	if (objMyPlayer.playerGameNetWorth < objMyPlayer.playerCycleNetWorth) {
+		AvailableToInvest = objMyPlayer.playerGameNetWorth;
+	} else {
+		AvailableToInvest = objMyPlayer.playerCycleNetWorth;
+	}
+
+	AvailableToInvestDisplay = MakeCurrency(AvailableToInvest);
+	TOKENSHELD = objMyPlayer.playerTotalTokensHeld;
+	CurrentTokenValue = objGame.gameCurrentTokenValue;
+	CurrentTokenValueDisplay = MakeCurrency(CurrentTokenValue);
+	if (TOKENSHELD > 0) {
+		TokenProceeds = TOKENSHELD * CurrentTokenValue;
+	}
+	TokenProceedsDisplay = MakeCurrency(TokenProceeds);
+
+	NextTokenValue = objGame.gameNextTokenValue;
+	NextTokenValueDisplay = MakeCurrency(NextTokenValue);
+	TokenPercent = (NextTokenValue - CurrentTokenValue) / CurrentTokenValue;
+	TokenPercent = Math.floor(TokenPercent * 100);
+
+	if (AvailableToInvest > 0) {
+		MAXTOKENSTOBUY = Math.floor(AvailableToInvest/CurrentTokenValue);
+	} else {
+		MAXTOKENSTOBUY = 0;
+	}
+
+	SavingsRate = objGame.gameSavingsRate / 100;
+	SavingsRatePlus1 = 1 + SavingsRate;
+	CombinedSavingsRate = (SavingsRatePlus1 * SavingsRatePlus1 * SavingsRatePlus1) - 1;
+	CombinedSavingsRate = Math.floor(CombinedSavingsRate * 100);
+	
+	LoanRate = objGame.gameLoanRate / 100;
+	LoanRatePlus1 = 1 + LoanRate;
+	CombinedLoanRate = (LoanRatePlus1 * LoanRatePlus1 * LoanRatePlus1) - 1;
+	CombinedLoanRate = Math.floor(CombinedLoanRate * 100);
+
+	document.forms[0].tbMarketNetWorthOutput.value = "Available for Token purchase: " + AvailableToInvestDisplay; 
+	document.forms[0].tbTokensHeldOutput.value = "Number of Tokens in your possession is: " + TOKENSHELD; 
+	document.forms[0].tbCurrentTokenValueOutput.value = "Current Cycle Token Value is: " + CurrentTokenValueDisplay; 
+	document.forms[0].tbNextTokenValueOutput.value = "Next Cycle Token Value is: " + NextTokenValueDisplay; 
+	document.forms[0].tbTokenIncreaseDecreaseOutput.value = "Token Percentage Increase/Decrease is: " + TokenPercent + "%";
+	document.forms[0].tbSavingsRateOutput.value = "Compounded Savings Rate for Upcoming Cycle (all 3 Rounds) is: " + CombinedSavingsRate + "%";
+	document.forms[0].tbLoanRateOutput.value = "Compounded Loan Rate for Upcoming Cycle (all 3 Rounds) is: " + CombinedLoanRate + "%";
+	document.forms[0].tbBuySellOutput.value = "You can sell up to " + TOKENSHELD + " Tokens, or you can purchase up to " + MAXTOKENSTOBUY + " Tokens.";
+	document.forms[0].tbSellTokens.value = TOKENSHELD;
+	document.forms[0].tbTokenProceeds.value = "Proceeds of Token sale will be " + TokenProceedsDisplay + ".";
+
+	for (i = 0; i < arrPlayers.length; i++)   {
+		if (arrPlayers[i].playerID == MyPlayerID) {
+			objMyPlayer = arrPlayers[i];
+		}
+		if (arrPlayers[i].playerNewMessages == true && arrPlayers[i].playerID == MyPlayerID) {
+			document.forms[0].tbMessagesNotificationOutput.value = "    YOU HAVE NEW MESSAGES!";
+		} 
+		x = i + 1;
+		if (x == 1) {
+			document.forms[0].tbPlayer1Output.value = arrPlayers[i].playerAliasName;
+			if (arrPlayers[i].playerMarketCompleted == true) {
+				document.forms[0].tbPlayer1Output.value = document.forms[0].tbPlayer1Output.value + " (Entered)";
+			} else {
+				document.forms[0].tbPlayer1Output.value = document.forms[0].tbPlayer1Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 2) {
+			document.forms[0].tbPlayer2Output.value = arrPlayers[i].playerAliasName;
+			if (arrPlayers[i].playerMarketCompleted == true) {
+				document.forms[0].tbPlayer2Output.value = document.forms[0].tbPlayer2Output.value + " (Entered)";
+			} else {
+				document.forms[0].tbPlayer2Output.value = document.forms[0].tbPlayer2Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 3) {
+			document.forms[0].tbPlayer3Output.value = arrPlayers[i].playerAliasName;
+			if (arrPlayers[i].playerMarketCompleted == true) {
+				document.forms[0].tbPlayer3Output.value = document.forms[0].tbPlayer3Output.value + " (Entered)";
+			} else {
+				document.forms[0].tbPlayer3Output.value = document.forms[0].tbPlayer3Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 4) {
+			document.forms[0].tbPlayer4Output.value = arrPlayers[i].playerAliasName;
+			if (arrPlayers[i].playerMarketCompleted == true) {
+				document.forms[0].tbPlayer4Output.value = document.forms[0].tbPlayer4Output.value + " (Entered)";
+			} else {
+				document.forms[0].tbPlayer4Output.value = document.forms[0].tbPlayer4Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 5) {
+			document.forms[0].tbPlayer5Output.value = arrPlayers[i].playerAliasName;
+			if (arrPlayers[i].playerMarketCompleted == true) {
+				document.forms[0].tbPlayer5Output.value = document.forms[0].tbPlayer5Output.value + " (Entered)";
+			} else {
+				document.forms[0].tbPlayer5Output.value = document.forms[0].tbPlayer5Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 6) {
+			document.forms[0].tbPlayer6Output.value = arrPlayers[i].playerAliasName;
+			if (arrPlayers[i].playerMarketCompleted == true) {
+				document.forms[0].tbPlayer6Output.value = document.forms[0].tbPlayer6Output.value + " (Entered)";
+			} else {
+				document.forms[0].tbPlayer6Output.value = document.forms[0].tbPlayer6Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 7) {
+			document.forms[0].tbPlayer7Output.value = arrPlayers[i].playerAliasName;
+			if (arrPlayers[i].playerMarketCompleted == true) {
+				document.forms[0].tbPlayer7Output.value = document.forms[0].tbPlayer7Output.value + " (Entered)";
+			} else {
+				document.forms[0].tbPlayer7Output.value = document.forms[0].tbPlayer7Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 8) {
+			document.forms[0].tbPlayer8Output.value = arrPlayers[i].playerAliasName;
+			if (arrPlayers[i].playerMarketCompleted == true) {
+				document.forms[0].tbPlayer8Output.value = document.forms[0].tbPlayer8Output.value + " (Entered)";
+			} else {
+				document.forms[0].tbPlayer8Output.value = document.forms[0].tbPlayer8Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 9) {
+			document.forms[0].tbPlayer9Output.value = arrPlayers[i].playerAliasName;
+			if (arrPlayers[i].playerMarketCompleted == true) {
+				document.forms[0].tbPlayer9Output.value = document.forms[0].tbPlayer9Output.value + " (Entered)";
+			} else {
+				document.forms[0].tbPlayer9Output.value = document.forms[0].tbPlayer9Output.value + " (Not Entered)";
+			}
+		}
+		if (x == 10) {
+			document.forms[0].tbPlayer10Output.value = arrPlayers[i].playerAliasName;
+			if (arrPlayers[i].playerMarketCompleted == true) {
+				document.forms[0].tbPlayer10Output.value = document.forms[0].tbPlayer10Output.value + " (Entered)";
+			} else {
+				document.forms[0].tbPlayer10Output.value = document.forms[0].tbPlayer10Output.value + " (Not Entered)";
+			}
+		}
+	}
+
+	if (objMyPlayer.playerMarketCompleted == true) {
+		if (Number(objMyPlayer.playerTokensSold) > 0) {
+			TokensSold = objMyPlayer.playerTokensSold;
+			TokenProceeds = objMyPlayer.playerCycleTokenSales;
+			TokenProceedsDisplay = MakeCurrency(TokenProceeds);
+			document.forms[0].tbMarketNotificationOutput.value = "Entry made. You sold " + TokensSold + " Tokens, totaling $" + TokenProceedsDisplay + ".";
+		}
+		if (Number(objMyPlayer.playerTokensBought) > 0) {
+			TokensBought = objMyPlayer.playerTokensBought;
+			TokenPurchaseAmount = objMyPlayer.playerCycleTokenPurchases;
+			TokenPurchaseAmountDisplay = MakeCurrency(TokenPurchaseAmount);
+			document.forms[0].tbMarketNotificationOutput.value = "Entry made. You purchased " + TokensBought + " Tokens, totaling $" + TokenPurchaseAmountDisplay + ".";
+		}
+		if (Number(objMyPlayer.playerTokensSold) == 0 && Number(objMyPlayer.playerTokensBought) == 0) {
+			document.forms[0].tbMarketNotificationOutput.value = "Entry made. You did not sell or purchase any Tokens.";
+		} 
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+		document.getElementById("div_market_title").style.display = "block";
+		document.getElementById("div_marketmessage").style.display = "block";
+	} else {
+		document.getElementById("div_cycleround").style.display = "block";
+		document.getElementById("div_players").style.display = "block";
+		document.getElementById("div_market_title").style.display = "block";
+		document.getElementById("div_market").style.display = "block";
+		document.getElementById("div_selltokens").style.display = "block";
+	}
+
+	return;
+}
+
+function ChangeSellBuy() {
+
+	var SellBuy = document.getElementById("cmbSellBuy").value;
+
+	if (SellBuy == 1) {
+		document.getElementById("div_selltokens").style.display = "block";
+		document.getElementById("div_buytokens").style.display = "none";
+	} else {
+		InitialBuyTokens();
+		document.getElementById("div_selltokens").style.display = "none";
+		document.getElementById("div_buytokens").style.display = "block";
+	}
+
+	return;
+}
+
+function ChangeSellTokens() {
+
+	var CurrentTokenValue = objGame.gameCurrentTokenValue;
+	var nSellTokens = Number(document.getElementById("tbSellTokens").value);
+	var TokenProceeds = nSellTokens * CurrentTokenValue;
+	var TokenProceedsDisplay = MakeCurrency(TokenProceeds);
+
+	if (nSellTokens < 0 || nSellTokens > TOKENSHELD || Number.isInteger(nSellTokens) == false) {
+		alert("Tokens to sell has to be an integer and cannot be less than 0 or greater than the amount of Tokens in your possession.");
+		document.forms[0].tbSellTokens.focus();
+		return false;
+	}
+
+	document.forms[0].tbTokenProceeds.value = "Proceeds of Token sale will be " + TokenProceedsDisplay + ".";
+
+	return true;
+}
+
+function pbSellTokens_onclick() {
+
+	var MySellEntry = document.forms[0].tbSellTokens.value;
+
+	objMyPlayer.playerTokensSold = MySellEntry;
+	objMyPlayer.playerMarketCompleted = true;
+
+	/* hostcall Call */
+	objGame = hostcallPlayerSellTokens(objMyPlayer);
+
+	OnloadPage();
+
+	return;
+}
+
+function InitialBuyTokens() {
+
+	var CurrentTokenValue = objGame.gameCurrentTokenValue;
+	var TokenCost = CurrentTokenValue * MAXTOKENSTOBUY;
+	var TokenCostDisplay = MakeCurrency(TokenCost);
+
+	document.getElementById("tbBuyTokens").value = MAXTOKENSTOBUY;
+	document.forms[0].tbTokenCost.value = "Cost of Token purchase will be " + TokenCostDisplay + ".";
+
+	return;
+}
+
+function ChangeBuyTokens() {
+
+	var CurrentTokenValue = objGame.gameCurrentTokenValue;
+	var nBuyTokens = Number(document.getElementById("tbBuyTokens").value);
+	var TokenCost = nBuyTokens * CurrentTokenValue;
+	var TokenCostDisplay = MakeCurrency(TokenCost);
+
+	if (nBuyTokens < 0 || nBuyTokens > MAXTOKENSTOBUY || Number.isInteger(nBuyTokens) == false) {
+		alert("Tokens to buy has to be an integer and cannot be less than 0 or greater than the max amount of tokens allowed.");
+		document.forms[0].tbBuyTokens.focus();
+		return false;
+	}
+
+	document.forms[0].tbTokenCost.value = "Cost of Token purchase will be " + TokenCostDisplay + ".";
+
+	return true;
+}
+
+function pbBuyTokens_onclick() {
+
+	var MyBuyEntry = document.forms[0].tbBuyTokens.value;
+
+	objMyPlayer.playerTokensBought = MyBuyEntry;
+	objMyPlayer.playerMarketCompleted = true;
+
+	/* hostcall Call */
+	objGame = hostcallPlayerBuyTokens(objMyPlayer);
+
+	OnloadPage();
+
+	return;
+}
+
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" onload="OnloadPage()">
+
+<form name="fmEntries" id="fmEntries">
+  <font size="10" face="Arial">
+
+  <div id="div_topline" style="display:block" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="left">
+      <td colspan="2" width="500">You have not joined a game yet or the game has not started.</td>
+    </tr>
+   </table>
+  </div>
+
+  <div id="div_gameover" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="left">
+      <td colspan="2" width="500">The Game is over. Click on the STATS button to see the final totals.</td>
+    </tr>
+    <tr align="center"> 
+      <td colspan="2" align="center" width="500"><hr></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="500">All Tokens that were in your posession have been purchased by the Game.</td>
+    </tr>
+   </table>
+  </div>
+
+  <div id="div_cycleround" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="left">
+      <td colspan="1" width="20"><input tabindex="-1" id="tbCycleRoundOutput" name="tbCycleRoundOutput" readOnly size="20" style="border: medium none"></td>
+      <td colspan="1" width="20"><input tabindex="-1" id="tbMessagesNotificationOutput" name="tbMessagesNotificationOutput" readOnly size="50" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center"> 
+      <td colspan="2" align="center" width="500"><hr></td>
+    </tr>
+   </table>
+  </div>
+
+ <div id="div_title" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr>
+      <td colspan="2" width="500"><center><p><a href="infoentries.html"
+      onclick="PopUpDefinition('infoentries.html');return false" target><span><strong>Player Entries</strong></span></td>
+    </tr>
+    <tr align="center">
+      <td align="left" width="20">&nbsp;</td>
+    </tr>
+   </table>
+ </div>
+
+ <div id="div_market_title" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr>
+      <td colspan="2" width="500"><center><p><a href="infoentries.html"
+      onclick="PopUpDefinition('infomarket.html');return false" target><span><strong>Token Marketplace</strong></span></td>
+    </tr>
+    <tr align="center">
+      <td align="left" width="20">&nbsp;</td>
+    </tr>
+   </table>
+ </div>
+
+  <div id="div_rates" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td align="left" width="272">Choose a Savings Rate (1% to 15%) <a tabindex="-1" href="infosavingsrate.html"
+      onclick="PopUpDefinition('infosavingsrate.html');return false" target>(info)</a> .................... </td>
+      <td align="left" width="190"><input id="tbSavingsRate" name="tbSavingsRate" size="2"> %
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Choose a Loan Rate (1% to 15%) <a tabindex="-1" href="infoloanrate.html"
+      onclick="PopUpDefinition('infoloanrate.html');return false" target>(info)</a> ......................... </td>
+      <td align="left" width="190"><input id="tbLoanRate" name="tbLoanRate" size="2"> %
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="left" width="20">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="center" width="260"><input id="pbEnterRates" name="pbEnterRates" type="button"
+      value="Enter Rates" LANGUAGE="javascript" onclick="return pbEnterRates_onclick()"></td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+  </table>
+  </div> 
+
+  <div id="div_ratesmessage" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td colspan="2" width="500">Click the ENTRIES button above to refresh the screen.</td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+
+    <tr align="left">
+      <td colspan="2" width="500"><input tabindex="-1" id="tbRatesNotificationOutput" name="tbRatesNotificationOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center"> 
+      <td align="center" width="20">&nbsp;</td>
+    </tr>
+   </table>
+  </div>
+
+  <div id="div_tokenvalue" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td align="left" width="272">Choose the Token Value ($1,000 to $25,000) <a tabindex="-1" href="infotokenvalue.html"
+      onclick="PopUpDefinition('infotokenvalue.html');return false" target>(info)</a> ...... </td>
+      <td align="left" width="190">$ <input id="tbTokenValue" name="tbTokenValue" size="2">,000
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="left" width="20">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="center" width="260"><input id="pbEnterTokenValue" name="pbEnterTokenValue" type="button"
+      value="Enter Token Value" LANGUAGE="javascript" onclick="return pbEnterTokenValue_onclick()"></td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+  </table>
+  </div> 
+
+  <div id="div_tokenmessage" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td colspan="2" width="500">Click the ENTRIES button above to refresh the screen.</td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+
+    <tr align="left">
+      <td colspan="2" width="500"><input tabindex="-1" id="tbTokenNotificationOutput" name="tbTokenNotificationOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center"> 
+      <td align="center" width="20"><br></td>
+    </tr>
+   </table>
+  </div>
+
+  <div id="div_bids" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td align="left" width="272">Enter your Bid ($5,000 to $995,000) <a tabindex="-1" href="infobids.html"
+      onclick="PopUpDefinition('infobids.html');return false" target>(info)</a> ..................... </td>
+      <td align="left" width="190">$ <input id="tbBid" name="tbBid" size="2">,000
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="left" width="20">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="center" width="260"><input id="pbEnterBid" name="pbEnterBid" type="button"
+      value="Enter Your Bid" LANGUAGE="javascript" onclick="return pbEnterBid_onclick()"></td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+  </table>
+  </div> 
+
+  <div id="div_bidsmessage" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td colspan="2" width="500">Click the ENTRIES button above to refresh the screen.</td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+
+    <tr align="left">
+      <td colspan="2" width="500"><input tabindex="-1" id="tbBidNotificationOutput" name="tbBidNotificationOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center"> 
+      <td align="center" width="20"><br></td>
+    </tr>
+   </table>
+  </div>
+
+  <div id="div_market" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="left">
+      <td colspan="2" width="200"><input tabindex="-1" id="tbMarketNetWorthOutput" name="tbMarketNetWorthOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="200"><input tabindex="-1" id="tbTokensHeldOutput" name="tbTokensHeldOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="200"><input tabindex="-1" id="tbCurrentTokenValueOutput" name="tbCurrentTokenValueOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="200"><input tabindex="-1" id="tbNextTokenValueOutput" name="tbNextTokenValueOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="200"><input tabindex="-1" id="tbTokenIncreaseDecreaseOutput" name="tbTokenIncreaseDecreaseOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="200"><input tabindex="-1" id="tbSavingsRateOutput" name="tbSavingsRateOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="200"><input tabindex="-1" id="tbLoanRateOutput" name="tbLoanRateOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="200"><input tabindex="-1" id="tbBuySellOutput" name="tbBuySellOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="200">Sell or buy Tokens  <a tabindex="-1" href="infosellbuy.html"
+      onclick="PopUpDefinition('infosellbuy.html');return false" target>(info)</a> ...................................</td>
+      <td align="left" width="200"><select id="cmbSellBuy" name="cmbSellBuy" size="1" onchange="ChangeSellBuy()">
+        <option selected value="1">Sell Tokens</option>
+        <option value="2">Buy Tokens</option>
+      </select></td>
+    </tr>
+  </table>
+  </div> 
+
+  <div id="div_selltokens" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td align="left" width="200">Tokens to sell <a tabindex="-1" href="infoselltokens.html"
+      onclick="PopUpDefinition('infoselltokens.html');return false" target>(info)</a> ..........................................</td>
+      <td align="left" width="200"><input id="tbSellTokens" name="tbSellTokens" size="2" onchange="ChangeSellTokens()">
+    </tr>
+    <tr align="center">
+      <td colspan="2" align="left" width="200"><input tabindex="-1" id="tbTokenProceeds" name="tbTokenProceeds" readOnly size="70" style="border: medium none"</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="left" width="20">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="center" width="200"><input id="pbSellTokens" name="pbSellTokens" type="button"
+      value="Sell Tokens" LANGUAGE="javascript" onclick="return pbSellTokens_onclick()"></td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+  </table>
+  </div> 
+
+  <div id="div_buytokens" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td align="left" width="200">Tokens to buy <a tabindex="-1" href="infobuytokens.html"
+      onclick="PopUpDefinition('infobuytokens.html');return false" target>(info)</a> ..........................................</td>
+      <td align="left" width="200"><input id="tbBuyTokens" name="tbBuyTokens" size="2" onchange="ChangeBuyTokens()">
+    </tr>
+    <tr align="center">
+      <td colspan="2" align="left" width="200"><input tabindex="-1" id="tbTokenCost" name="tbTokenCost" readOnly size="70" style="border: medium none"</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="left" width="20">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="center" width="200"><input id="pbBuyTokens" name="pbBuyTokens" type="button"
+      value="Buy Tokens" LANGUAGE="javascript" onclick="return pbBuyTokens_onclick()"></td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+  </table>
+  </div> 
+
+  <div id="div_marketmessage" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td colspan="2" width="500">Click the ENTRIES button above to refresh the screen.</td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="500"><input tabindex="-1" id="tbMarketNotificationOutput" name="tbMarketNotificationOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+    <tr align="center"> 
+      <td align="center" width="20"><br></td>
+    </tr>
+   </table>
+  </div>
+
+  <div id="div_players" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer1Output" name="tbPlayer1Output" readOnly
+      size="30" style="border: medium none"></td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer2Output" name="tbPlayer2Output" readOnly
+      size="30" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer3Output" name="tbPlayer3Output" readOnly
+      size="30" style="border: medium none"></td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer4Output" name="tbPlayer4Output" readOnly
+      size="30" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer5Output" name="tbPlayer5Output" readOnly
+      size="30" style="border: medium none"></td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer6Output" name="tbPlayer6Output" readOnly
+      size="30" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer7Output" name="tbPlayer7Output" readOnly
+      size="30" style="border: medium none"></td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer8Output" name="tbPlayer8Output" readOnly
+      size="30" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer9Output" name="tbPlayer9Output" readOnly
+      size="30" style="border: medium none"></td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer10Output" name="tbPlayer10Output" readOnly
+      size="30" style="border: medium none"></td>
+    </tr>
+  </table>
+  </div> 
+
+  <div id="div_ratescompleted" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="500"><input tabindex="-1" id="tbRatesCompletedOutput" name="tbRatesCompletedOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+   </table>
+  </div>
+
+  <div id="div_tokenvaluecompleted" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="500"><input tabindex="-1" id="tbTokenValueCompletedOutput" name="tbTokenValueCompletedOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+   </table>
+  </div>
+
+  <div id="div_bidscompleted" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+    <tr align="left">
+      <td colspan="2" width="500"><input tabindex="-1" id="tbBidsCompletedOutput" name="tbBidsCompletedOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500"><hr></td>
+    </tr>
+   </table>
+
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">  
+
+    <tr align="left">
+      <td colspan="2" width="500"><input tabindex="-1" id="tbReadyNextStepOutput" name="tbReadyNextStepOutput" readOnly size="90" style="border: medium none"></td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" width="500">&nbsp;</td>
+    </tr>
+    <tr align="center">
+      <td colspan="2" align="center" width="260"><input id="pbContinue" name="pbContinue" type="button"
+      value="Continue to Next Step" LANGUAGE="javascript" onclick="return pbContinue_onclick()"></td>
+    </tr>
+   </table>
+  </div>
+
+</form>
+</font>
+</body>
+</html>

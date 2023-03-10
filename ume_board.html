@@ -1,0 +1,647 @@
+<html><head><title>Uncle Maurey's Estate</title></head><base target='main'>
+
+<script src="hostcalls.js" ></script>
+<script src="commonvarfunctions.js" ></script>
+
+<script language='javascript'>
+
+function OnloadPage() {
+
+	var GameID = localStorage.getItem("lsMyGameID");
+	var MyAliasName = localStorage.getItem("lsAliasName");
+	var TokenPointSpaces;
+
+	/* hostcall Call */
+	objGameBoard = hostcallGetGameBoard(GameID);
+
+	if (objGameBoard === undefined) {
+		document.getElementById("div_topline").style.display = "block";
+		document.getElementById("div_gameboard").style.display = "none";
+		return;
+	} 
+	
+	/* hostcall Call */
+	objGame = hostcallGetGameData(GameID);
+
+	TokenPointSpaces = Number(objGame.gameTokenPointSpaces);
+
+	document.getElementById("game_title").style.background = "whitesmoke";
+	document.getElementById("board_title").style.background = "whitesmoke";
+	document.forms[0].textGameBoard0Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard1Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard2Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard3Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard4Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard5Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard6Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard7Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard8Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard9Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard10Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard11Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard12Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard13Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard14Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard15Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard16Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard17Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard18Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard19Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard20Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard21Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard22Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard23Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard24Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard25Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard26Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard27Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard28Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard29Output.style.background = "whitesmoke";
+	document.forms[0].textGameBoard30Output.style.background = "whitesmoke";
+
+	document.getElementById("div_topline").style.display = "none";	
+	document.getElementById("div_gameboard").style.display = "block";
+
+	document.forms[0].textGameBoard0Output.value = "START " + "\n" + objGameBoard.gameboardPlayers[0];
+	document.forms[0].textGameBoard0Output.style.fontWeight = "bold";
+	document.forms[0].textGameBoard0Output.style.background = "whitesmoke";
+	
+	document.forms[0].textGameBoard1Output.value = "SPACE 1 " + "\n" + objGameBoard.gameboardPlayers[1];
+	document.forms[0].textGameBoard1Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[1].length > 1) {
+		document.forms[0].textGameBoard1Output.style.background = "lightgray";
+	} 
+
+	document.forms[0].textGameBoard2Output.value = "SPACE 2 " + "\n" + objGameBoard.gameboardPlayers[2];
+	document.forms[0].textGameBoard2Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[2].length > 1) {
+		document.forms[0].textGameBoard2Output.style.background = "lightgray";
+	} 	
+
+	if (TokenPointSpaces == 3) {
+		document.forms[0].textGameBoard3Output.value = "SPACE 3: " + "Next Token Crossing " + objGameBoard.gameboardTokens[3] + "\n" + objGameBoard.gameboardPlayers[3];
+		document.forms[0].textGameBoard3Output.style.background = "yellow";
+		document.forms[0].textGameBoard3Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[3].length > 1) {
+			document.forms[0].textGameBoard3Output.style.background = "gold";
+		}
+	} else {
+		document.forms[0].textGameBoard3Output.value = "SPACE 3 " + "\n" + objGameBoard.gameboardPlayers[3];
+		document.forms[0].textGameBoard3Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[3].length > 1) {
+			document.forms[0].textGameBoard3Output.style.background = "lightgray";
+		}
+	}
+	
+	if (TokenPointSpaces == 4) {
+		document.forms[0].textGameBoard4Output.value = "SPACE 4: " + "Next Token Crossing " + objGameBoard.gameboardTokens[4] + "\n" + objGameBoard.gameboardPlayers[4];
+		document.forms[0].textGameBoard4Output.style.background = "yellow";
+		document.forms[0].textGameBoard4Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[4].length > 1) {
+			document.forms[0].textGameBoard4Output.style.background = "gold";
+		}	
+	} else {
+		document.forms[0].textGameBoard4Output.value = "SPACE 4 " + "\n" + objGameBoard.gameboardPlayers[4];
+		document.forms[0].textGameBoard4Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[4].length > 1) {
+			document.forms[0].textGameBoard4Output.style.background = "lightgray";
+		}
+	}
+
+	if (TokenPointSpaces == 5) {
+		document.forms[0].textGameBoard5Output.value = "SPACE 5: " + "Next Token Crossing " + objGameBoard.gameboardTokens[5] + "\n" + objGameBoard.gameboardPlayers[5];
+		document.forms[0].textGameBoard5Output.style.background = "yellow";
+		document.forms[0].textGameBoard5Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[5].length > 1) {
+			document.forms[0].textGameBoard5Output.style.background = "gold";
+		}
+	} else {
+		document.forms[0].textGameBoard5Output.value = "SPACE 5 " + "\n" + objGameBoard.gameboardPlayers[5];
+		document.forms[0].textGameBoard5Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[5].length > 1) {
+			document.forms[0].textGameBoard5Output.style.background = "lightgray";
+		}
+	}
+
+	if (TokenPointSpaces == 3) {
+		document.forms[0].textGameBoard6Output.value = "SPACE 6: " + "Next Token Crossing " + objGameBoard.gameboardTokens[6] + "\n" + objGameBoard.gameboardPlayers[6];
+		document.forms[0].textGameBoard6Output.style.background = "yellow";
+		document.forms[0].textGameBoard6Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[6].length > 1) {
+			document.forms[0].textGameBoard6Output.style.background = "gold";
+		}	
+	} else {
+		document.forms[0].textGameBoard6Output.value = "SPACE 6 " + "\n" + objGameBoard.gameboardPlayers[6];
+		document.forms[0].textGameBoard6Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[6].length > 1) {
+			document.forms[0].textGameBoard6Output.style.background = "lightgray";
+		}
+	}
+
+	document.forms[0].textGameBoard7Output.value = "SPACE 7 " + "\n" + objGameBoard.gameboardPlayers[7];
+	document.forms[0].textGameBoard7Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[7].length > 1) {
+		document.forms[0].textGameBoard7Output.style.background = "lightgray";
+	}	
+
+	if (TokenPointSpaces == 4) {
+		document.forms[0].textGameBoard8Output.value = "SPACE 8: " + "Next Token Crossing " + objGameBoard.gameboardTokens[8] + "\n" + objGameBoard.gameboardPlayers[8];
+		document.forms[0].textGameBoard8Output.style.background = "yellow";
+		document.forms[0].textGameBoard8Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[8].length > 1) {
+			document.forms[0].textGameBoard8Output.style.background = "gold";
+		}
+	} else {
+		document.forms[0].textGameBoard8Output.value = "SPACE 8 " + "\n" + objGameBoard.gameboardPlayers[8];
+		document.forms[0].textGameBoard8Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[8].length > 1) {
+			document.forms[0].textGameBoard8Output.style.background = "lightgray";
+		}
+	}
+
+	if (TokenPointSpaces == 3) {
+		document.forms[0].textGameBoard9Output.value = "SPACE 9: " + "Next Token Crossing " + objGameBoard.gameboardTokens[9] + "\n" + objGameBoard.gameboardPlayers[9];
+		document.forms[0].textGameBoard9Output.style.background = "yellow";
+		document.forms[0].textGameBoard9Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[9].length > 1) {
+			document.forms[0].textGameBoard9Output.style.background = "gold";
+		}	
+	} else {
+		document.forms[0].textGameBoard9Output.value = "SPACE 9 " + "\n" + objGameBoard.gameboardPlayers[9];	
+		document.forms[0].textGameBoard9Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[9].length > 1) {
+			document.forms[0].textGameBoard9Output.style.background = "lightgray";
+		}
+	}
+	
+	if (TokenPointSpaces == 5) {
+		document.forms[0].textGameBoard10Output.value = "SPACE 10: " + "Next Token Crossing " + objGameBoard.gameboardTokens[10] + "\n" + objGameBoard.gameboardPlayers[10];
+		document.forms[0].textGameBoard10Output.style.background = "yellow";
+		document.forms[0].textGameBoard10Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[10].length > 1) {
+			document.forms[0].textGameBoard10Output.style.background = "gold";
+		}
+	} else {
+		document.forms[0].textGameBoard10Output.value = "SPACE 10 " + "\n" + objGameBoard.gameboardPlayers[10];
+		document.forms[0].textGameBoard10Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[10].length > 1) {
+			document.forms[0].textGameBoard10Output.style.background = "lightgray";
+		}
+	}
+
+	document.forms[0].textGameBoard11Output.value = "SPACE 11 " + "\n" + objGameBoard.gameboardPlayers[11];	
+	document.forms[0].textGameBoard11Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[11].length > 1) {
+		document.forms[0].textGameBoard11Output.style.background = "lightgray";
+	}	
+
+	if (TokenPointSpaces == 3 || TokenPointSpaces == 4) {
+		document.forms[0].textGameBoard12Output.value = "SPACE 12: " + "Next Token Crossing " + objGameBoard.gameboardTokens[12] + "\n" + objGameBoard.gameboardPlayers[12];	
+		document.forms[0].textGameBoard12Output.style.background = "yellow";
+		document.forms[0].textGameBoard12Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[12].length > 1) {
+			document.forms[0].textGameBoard12Output.style.background = "gold";
+		}
+	} else {
+		document.forms[0].textGameBoard12Output.value = "SPACE 12 " + "\n" + objGameBoard.gameboardPlayers[12];	
+		document.forms[0].textGameBoard12Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[12].length > 1) {
+			document.forms[0].textGameBoard12Output.style.background = "lightgray";
+		}
+	}
+
+	document.forms[0].textGameBoard13Output.value = "SPACE 13 " + "\n" + objGameBoard.gameboardPlayers[13];	
+	document.forms[0].textGameBoard13Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[13].length > 1) {
+		document.forms[0].textGameBoard13Output.style.background = "lightgray";
+	}	
+
+	document.forms[0].textGameBoard14Output.value = "SPACE 14 " + "\n" + objGameBoard.gameboardPlayers[14];	
+	document.forms[0].textGameBoard14Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[14].length > 1) {
+		document.forms[0].textGameBoard14Output.style.background = "lightgray";
+	}	
+
+	if (TokenPointSpaces == 3 || TokenPointSpaces == 5) {
+		document.forms[0].textGameBoard15Output.value = "SPACE 15: " + "Next Token Crossing " + objGameBoard.gameboardTokens[15] + "\n" + objGameBoard.gameboardPlayers[15];
+		document.forms[0].textGameBoard15Output.style.background = "yellow";	
+		document.forms[0].textGameBoard15Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[15].length > 1) {
+			document.forms[0].textGameBoard15Output.style.background = "gold";
+		}
+	} else {
+		document.forms[0].textGameBoard15Output.value = "SPACE 15 " + "\n" + objGameBoard.gameboardPlayers[15];	
+		document.forms[0].textGameBoard15Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[15].length > 1) {
+			document.forms[0].textGameBoard15Output.style.background = "lightgray";
+		}
+	}
+
+	if (TokenPointSpaces == 4) {
+		document.forms[0].textGameBoard16Output.value = "SPACE 16: " + "Next Token Crossing " + objGameBoard.gameboardTokens[16] + "\n" + objGameBoard.gameboardPlayers[16];
+		document.forms[0].textGameBoard16Output.style.background = "yellow";
+		document.forms[0].textGameBoard16Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[16].length > 1) {
+			document.forms[0].textGameBoard16Output.style.background = "gold";
+		}	
+	} else {
+		document.forms[0].textGameBoard16Output.value = "SPACE 16 " + "\n" + objGameBoard.gameboardPlayers[16];	
+		document.forms[0].textGameBoard16Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[16].length > 1) {
+			document.forms[0].textGameBoard16Output.style.background = "lightgray";
+		}
+	}
+
+	document.forms[0].textGameBoard17Output.value = "SPACE 17 " + "\n" + objGameBoard.gameboardPlayers[17];	
+	document.forms[0].textGameBoard17Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[17].length > 1) {
+		document.forms[0].textGameBoard17Output.style.background = "lightgray";
+	}	
+
+	if (TokenPointSpaces == 3) {
+		document.forms[0].textGameBoard18Output.value = "SPACE 18: " + "Next Token Crossing " + objGameBoard.gameboardTokens[18] + "\n" + objGameBoard.gameboardPlayers[18];
+		document.forms[0].textGameBoard18Output.style.background = "yellow";	
+		document.forms[0].textGameBoard18Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[18].length > 1) {
+			document.forms[0].textGameBoard18Output.style.background = "gold";
+		}
+	} else {
+		document.forms[0].textGameBoard18Output.value = "SPACE 18 " + "\n" + objGameBoard.gameboardPlayers[18];	
+		document.forms[0].textGameBoard18Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[18].length > 1) {
+			document.forms[0].textGameBoard18Output.style.background = "lightgray";
+		}
+	}
+
+	document.forms[0].textGameBoard19Output.value = "SPACE 19 " + "\n" + objGameBoard.gameboardPlayers[19];	
+	document.forms[0].textGameBoard19Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[19].length > 1) {
+		document.forms[0].textGameBoard19Output.style.background = "lightgray";
+	}	
+
+	if (TokenPointSpaces == 4 || TokenPointSpaces == 5) {
+		document.forms[0].textGameBoard20Output.value = "SPACE 20: " + "Next Token Crossing " + objGameBoard.gameboardTokens[20] + "\n" + objGameBoard.gameboardPlayers[20];
+		document.forms[0].textGameBoard20Output.style.background = "yellow";
+		document.forms[0].textGameBoard20Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[20].length > 1) {
+			document.forms[0].textGameBoard20Output.style.background = "gold";
+		}	
+	} else {
+		document.forms[0].textGameBoard20Output.value = "SPACE 20 " + "\n" + objGameBoard.gameboardPlayers[20];	
+		document.forms[0].textGameBoard20Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[20].length > 1) {
+			document.forms[0].textGameBoard20Output.style.background = "lightgray";
+		}
+	}
+
+	if (TokenPointSpaces == 3) {
+		document.forms[0].textGameBoard21Output.value = "SPACE 21: " + "Next Token Crossing " + objGameBoard.gameboardTokens[21] + "\n" + objGameBoard.gameboardPlayers[21];
+		document.forms[0].textGameBoard21Output.style.background = "yellow";
+		document.forms[0].textGameBoard21Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[21].length > 1) {
+			document.forms[0].textGameBoard21Output.style.background = "gold";
+		}
+	} else {
+		document.forms[0].textGameBoard21Output.value = "SPACE 21 " + "\n" + objGameBoard.gameboardPlayers[21];	
+		document.forms[0].textGameBoard21Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[21].length > 1) {
+			document.forms[0].textGameBoard21Output.style.background = "lightgray";
+		}
+	}
+
+	document.forms[0].textGameBoard22Output.value = "SPACE 22 " + "\n" + objGameBoard.gameboardPlayers[22];	
+	document.forms[0].textGameBoard22Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[22].length > 1) {
+		document.forms[0].textGameBoard22Output.style.background = "lightgray";
+	}	
+
+	document.forms[0].textGameBoard23Output.value = "SPACE 23 " + "\n" + objGameBoard.gameboardPlayers[23];	
+	document.forms[0].textGameBoard23Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[23].length > 1) {
+		document.forms[0].textGameBoard23Output.style.background = "lightgray";
+	}	
+
+	if (TokenPointSpaces == 3 || TokenPointSpaces == 4) {
+		document.forms[0].textGameBoard24Output.value = "SPACE 24: " + "Next Token Crossing " + objGameBoard.gameboardTokens[24] + "\n" + objGameBoard.gameboardPlayers[24];
+		document.forms[0].textGameBoard24Output.style.background = "yellow";
+		document.forms[0].textGameBoard24Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[24].length > 1) {
+			document.forms[0].textGameBoard24Output.style.background = "gold";
+		}	
+	} else {
+		document.forms[0].textGameBoard24Output.value = "SPACE 24 " + "\n" + objGameBoard.gameboardPlayers[24];	
+		document.forms[0].textGameBoard24Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[24].length > 1) {
+			document.forms[0].textGameBoard24Output.style.background = "lightgray";
+		}
+	}
+
+	if (TokenPointSpaces == 5) {
+		document.forms[0].textGameBoard25Output.value = "SPACE 25: " + "Next Token Crossing " + objGameBoard.gameboardTokens[25] + "\n" + objGameBoard.gameboardPlayers[25];
+		document.forms[0].textGameBoard25Output.style.background = "yellow";
+		document.forms[0].textGameBoard25Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[25].length > 1) {
+			document.forms[0].textGameBoard25Output.style.background = "gold";
+		}
+	} else {
+		document.forms[0].textGameBoard25Output.value = "SPACE 25 " + "\n" + objGameBoard.gameboardPlayers[25];	
+		document.forms[0].textGameBoard25Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[25].length > 1) {
+			document.forms[0].textGameBoard25Output.style.background = "lightgray";
+		}
+	}
+
+	document.forms[0].textGameBoard26Output.value = "SPACE 26 " + "\n" + objGameBoard.gameboardPlayers[26];	
+	document.forms[0].textGameBoard26Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[26].length > 1) {
+		document.forms[0].textGameBoard26Output.style.background = "lightgray";
+	}	
+
+	if (TokenPointSpaces == 3) {
+		document.forms[0].textGameBoard27Output.value = "SPACE 27: " + "Next Token Crossing " + objGameBoard.gameboardTokens[27] + "\n" + objGameBoard.gameboardPlayers[27];
+		document.forms[0].textGameBoard27Output.style.background = "yellow";
+		document.forms[0].textGameBoard27Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[27].length > 1) {
+			document.forms[0].textGameBoard27Output.style.background = "gold";
+		}	
+	} else {
+		document.forms[0].textGameBoard27Output.value = "SPACE 27 " + "\n" + objGameBoard.gameboardPlayers[27];	
+		document.forms[0].textGameBoard27Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[27].length > 1) {
+			document.forms[0].textGameBoard27Output.style.background = "lightgray";
+		}
+	}
+
+	if (TokenPointSpaces == 4) {
+		document.forms[0].textGameBoard28Output.value = "SPACE 28: " + "Next Token Crossing " + objGameBoard.gameboardTokens[28] + "\n" + objGameBoard.gameboardPlayers[28];
+		document.forms[0].textGameBoard28Output.style.background = "yellow";
+		document.forms[0].textGameBoard28Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[28].length > 1) {
+			document.forms[0].textGameBoard28Output.style.background = "gold";
+		}
+	} else {
+		document.forms[0].textGameBoard28Output.value = "SPACE 28 " + "\n" + objGameBoard.gameboardPlayers[28];	
+		document.forms[0].textGameBoard28Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[28].length > 1) {
+			document.forms[0].textGameBoard28Output.style.background = "lightgray";
+		}
+	}
+
+	document.forms[0].textGameBoard29Output.value = "SPACE 29 " + "\n" + objGameBoard.gameboardPlayers[29];	
+	document.forms[0].textGameBoard29Output.style.fontWeight = "bold";
+	if (objGameBoard.gameboardPlayers[29].length > 1) {
+		document.forms[0].textGameBoard29Output.style.background = "lightgray";
+	}	
+
+	if (TokenPointSpaces == 3 || TokenPointSpaces == 5) {
+		document.forms[0].textGameBoard30Output.value = "SPACE 30: " + "Next Token Crossing " + objGameBoard.gameboardTokens[30] + "\n" + objGameBoard.gameboardPlayers[30];
+		document.forms[0].textGameBoard30Output.style.background = "yellow";
+		document.forms[0].textGameBoard30Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[30].length > 1) {
+			document.forms[0].textGameBoard30Output.style.background = "gold";
+		}	
+	} else {
+		document.forms[0].textGameBoard30Output.value = "SPACE 30 " + "\n" + objGameBoard.gameboardPlayers[30];	
+		document.forms[0].textGameBoard30Output.style.fontWeight = "bold";
+		if (objGameBoard.gameboardPlayers[30].length > 1) {
+			document.forms[0].textGameBoard30Output.style.background = "lightgray";
+		}
+	}
+
+	if(document.forms[0].textGameBoard1Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard1Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard2Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard2Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard3Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard3Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard4Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard4Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard5Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard5Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard6Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard6Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard7Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard7Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard8Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard8Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard9Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard9Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard10Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard10Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard11Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard11Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard12Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard12Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard13Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard13Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard14Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard14Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard15Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard15Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard16Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard16Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard17Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard17Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard18Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard18Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard19Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard19Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard20Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard20Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard21Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard21Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard22Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard22Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard23Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard23Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard24Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard24Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard25Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard25Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard26Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard26Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard27Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard27Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard28Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard28Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard29Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard29Output.style.background = "lightgreen";
+	}
+	if(document.forms[0].textGameBoard30Output.value.includes(MyAliasName) == true) {
+		document.forms[0].textGameBoard30Output.style.background = "lightgreen";
+	}
+
+	return;
+}
+
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" onload="OnloadPage()">
+
+<form name="fmGameBoard" id="fmGameBoard">
+  <font size="10" face="Arial">
+
+  <div id="div_topline" style="display:block" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="40%">
+    <tr align="left">
+      <td colspan="2" width="500">You have not joined a game yet or the game has not started.</td>
+    </tr>
+   </table>
+  </div>
+
+  <div id="div_gameboard" style="display:block" align="left">
+   <table align="center" border="4" cellPadding="1" cellSpacing="1" width="70%">
+    <tr align="left">
+      <td id="game_title" align="center"><b>UNCLE MOREY'S ESTATE</b> 
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard0Output" rows="4" cols="38" readOnly> </textarea>
+      </td>
+      <td id="board_title" align="center"><b>GAME BOARD</b>
+      </td>
+    </tr>
+    <tr align="left">
+      <td align="center">   
+      <textarea name="textGameBoard1Output" rows="3" cols="38" readOnly></textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard11Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard21Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+    </tr>
+    <tr align="left">
+      <td align="center">   
+      <textarea name="textGameBoard2Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard12Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard22Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+    </tr>
+    <tr align="left">
+      <td align="center">   
+      <textarea name="textGameBoard3Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard13Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard23Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+    </tr>
+    <tr align="left">
+      <td align="center">   
+      <textarea name="textGameBoard4Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard14Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard24Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+    </tr>
+    <tr align="left">
+      <td align="center">   
+      <textarea name="textGameBoard5Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard15Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard25Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+    </tr>
+    <tr align="left">
+      <td align="center">   
+      <textarea name="textGameBoard6Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard16Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard26Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+    </tr>
+    <tr align="left">
+      <td align="center">   
+      <textarea name="textGameBoard7Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard17Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard27Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+    </tr>
+    <tr align="left">
+      <td align="center">   
+      <textarea name="textGameBoard8Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard18Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard28Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+    </tr>
+    <tr align="left">
+      <td align="center">   
+      <textarea name="textGameBoard9Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard19Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard29Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+    </tr>
+    <tr align="left">
+      <td align="center">   
+      <textarea name="textGameBoard10Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard20Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+      <td align="center">   
+      <textarea name="textGameBoard30Output" rows="3" cols="38" readOnly> </textarea>
+      </td>
+    </tr>
+   </table>
+  </div>
+</form>
+</font>
+</body>
+</html>

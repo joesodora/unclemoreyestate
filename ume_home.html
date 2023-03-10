@@ -1,0 +1,932 @@
+<html>
+<head>
+<title></title>
+
+<script src="hostcalls.js" ></script>
+<script src="commonvarfunctions.js" ></script>
+
+<script ID="clientEventHandlersJS" LANGUAGE="javascript">
+
+/*Copyright 2022, Joseph R. Sodora. No part of this software may be copied or used in any other software without prior written consent.*/
+
+function OnloadPage() {
+
+	var i;
+	var x;
+	var nNumberWhoJoined;
+	var nWaitingFor;
+	var GameOver = false;
+	var GameID = localStorage.getItem("lsMyGameID");
+	var MyPlayerID = localStorage.getItem("lsMyPlayerID");
+
+	/* hostcall Call */
+	objGame = hostcallGetGameData(GameID);
+
+	if (objGame == null) {
+		return;
+	}
+
+	tPlayerAliasName = localStorage.getItem("lsAliasName");
+	tPlayerRealName = localStorage.getItem("lsRealName");
+
+	PopulateVariables();
+
+	document.forms[0].tbAliasNameOutput.value = tPlayerAliasName;
+	document.forms[0].tbRealNameOutput.value = tPlayerRealName;
+
+	/* hostcall Call */
+	arrPlayers = hostcallGetAllGamePlayers(GameID);
+
+	nRealPlayers = Number(objGame.gameRealPlayers); 
+	nNumberWhoJoined = arrPlayers.length;
+	nWaitingFor = nRealPlayers - nNumberWhoJoined;
+
+	if (objGame.gameOver == true) {
+		GameOver = true;
+	}
+
+	if (nNumberWhoJoined < nRealPlayers) {
+		document.forms[0].tbMessageOutput.value = nNumberWhoJoined + " players have joined. Waiting for " + nWaitingFor + " more. Click the HOME button to refresh. PLAYERS:";
+	} else {
+		document.forms[0].tbMessageOutput.value = "The game has started. Click on the ENTRIES button to begin your entries. Click the HOME button to refresh.";
+	}
+
+	if (GameOver == true) {
+		document.forms[0].tbMessageOutput.value = "THE GAME IS OVER!!!! Click on the STATS button to see the final totals.";
+	}
+
+	document.forms[0].tbMessagesNotificationOutput.value = null;
+
+	for (i = 0; i < arrPlayers.length; i++)   {
+		if (arrPlayers[i].playerNewMessages == true && arrPlayers[i].playerID == MyPlayerID) {
+			document.forms[0].tbMessagesNotificationOutput.value = "YOU HAVE NEW MESSAGES!";
+		} 
+		x = i + 1;
+		if (x == 1) {
+			document.forms[0].tbPlayer1Output.value = arrPlayers[i].playerAliasName;
+		}
+		if (x == 2) {
+			document.forms[0].tbPlayer2Output.value = arrPlayers[i].playerAliasName;
+		}
+		if (x == 3) {
+			document.forms[0].tbPlayer3Output.value = arrPlayers[i].playerAliasName;
+		}
+		if (x == 4) {
+			document.forms[0].tbPlayer4Output.value = arrPlayers[i].playerAliasName;
+		}
+		if (x == 5) {
+			document.forms[0].tbPlayer5Output.value = arrPlayers[i].playerAliasName;
+		}
+		if (x == 6) {
+			document.forms[0].tbPlayer6Output.value = arrPlayers[i].playerAliasName;
+		}
+		if (x == 7) {
+			document.forms[0].tbPlayer7Output.value = arrPlayers[i].playerAliasName;
+		}
+		if (x == 8) {
+			document.forms[0].tbPlayer8Output.value = arrPlayers[i].playerAliasName;
+		}
+		if (x == 9) {
+			document.forms[0].tbPlayer9Output.value = arrPlayers[i].playerAliasName;
+		}
+		if (x == 10) {
+			document.forms[0].tbPlayer10Output.value = arrPlayers[i].playerAliasName;
+		}
+	}
+
+	if (tPlayerAliasName !== null) {
+		/* Only display div_output */
+		document.getElementById("div_topsection").style.display = "none";
+		document.getElementById("div_gametitletype").style.display = "none";
+		document.getElementById("div_privatepublic").style.display = "none";
+		document.getElementById("div_solo").style.display = "none";
+		document.getElementById("div_join").style.display = "none";
+		document.getElementById("div_output").style.display = "block";
+	} else {
+		/* Only display div_topsection and div_output */
+		document.getElementById("div_topsection").style.display = "block";
+		document.getElementById("div_gametitletype").style.display = "none";
+		document.getElementById("div_privatepublic").style.display = "none";
+		document.getElementById("div_solo").style.display = "none";
+		document.getElementById("div_join").style.display = "none";
+		document.getElementById("div_output").style.display = "block";
+	}
+
+	return;
+}
+
+
+
+function PopulateVariables() {
+
+	var d;
+	var DisplayDate;
+	var DisplayHours;
+	var DisplayMinutes;
+	var minute = 60000;
+	var hour = minute * 60;
+	var PlayingTime;
+	var PlayingHours;
+	var PlayingMinutes;
+	var DisplayPlayingTime;
+	
+	nGameID = objGame.gameID;
+	tGameTitle = objGame.gameTitle;
+	nGameType = objGame.gameType;
+	tGameType = objGame.gameTypeDescription;
+	nNumberCycles = objGame.gameNumberCycles;
+	nNumberPlayers = objGame.gameNumberPlayers;
+	nRealPlayers = objGame.gameRealPlayers;
+	nTokenPointSpaces = objGame.gameTokenPointSpaces;
+	bolSubtractOneToken = objGame.gameSubtractOneToken;
+
+	d = new Date(objGame.gameLastUpdate);
+	DisplayDate = (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear();
+	if (d.getMinutes() < 10) {
+		DisplayMinutes = "0" + d.getMinutes();
+	} else {
+		DisplayMinutes = d.getMinutes();
+	}
+
+	if (d.getHours() < 12) {
+		if (d.getHours() == 0) {
+			DisplayHours = " 12:";
+		} else {
+			DisplayHours = " " + d.getHours() + ":";
+		}
+		DisplayMinutes = DisplayMinutes + " AM";
+	} else {
+		if (d.getHours() == 12) {
+			DisplayHours = " 12:";
+		} else {
+			DisplayHours = " " + (d.getHours() - 12) + ":";
+		}
+		DisplayMinutes = DisplayMinutes + " PM";
+	}
+	DisplayDate = DisplayDate + DisplayHours + DisplayMinutes; 
+	bolInvitesAvailable = objGame.gameInvitesAvailable; 
+	bolGameStarted = objGame.gameStarted;
+	bolGameOver = objGame.gameOver;
+
+	if (bolGameOver == true) {
+		PlayingTime = objGame.gameTimeEnded - objGame.gameLastUpdate;
+	} else {
+		PlayingTime = Date.now() - objGame.gameLastUpdate;
+	}
+
+	PlayingHours = Math.floor(PlayingTime / hour); 
+	PlayingMinutes = Math.ceil((PlayingTime - (PlayingHours * hour)) / minute);
+	if (PlayingMinutes < 10) {
+		PlayingMinutes = "0" + PlayingMinutes;
+	}
+
+	DisplayPlayingTime = PlayingHours + ":" + PlayingMinutes + " (hours:minutes)";
+
+	document.forms[0].tbGameIDOutput.value = nGameID;
+	document.forms[0].tbGameTitleOutput.value = tGameTitle;
+	document.forms[0].tbGameTypeOutput.value = tGameType;
+	document.forms[0].tbNumberCyclesOutput.value = nNumberCycles;
+	document.forms[0].tbNumberPlayersOutput.value = nNumberPlayers;
+	document.forms[0].tbRealPlayersOutput.value = nRealPlayers;
+	document.forms[0].tbTokenPointSpacesOutput.value = nTokenPointSpaces;
+	document.forms[0].tbSubtractOneTokenOutput.value = bolSubtractOneToken;
+	document.forms[0].tbActionTakenOutput.value = "Joined Game";
+	document.forms[0].tbInvitesAvailableOutput.value = bolInvitesAvailable;
+	document.forms[0].tbGameStartedOutput.value = bolGameStarted;
+	if (bolGameStarted == true) {
+		document.forms[0].tbGameStartedOutput.value = bolGameStarted + " (" + DisplayDate + ")";
+		document.forms[0].tbPlayingTimeOutput.value = DisplayPlayingTime;
+	}
+	document.forms[0].tbGameOverOutput.value = bolGameOver;	
+}
+
+function PopulateGames() {
+
+	var ele;
+
+	/* hostcall Call */
+	arrGamesPublished = hostcallReturnTitlesIDs(nStartJoin);
+
+	document.getElementById("idGameSelected").innerHTML = "";
+        ele = document.getElementById("idGameSelected");
+
+        for (let i = 0; i < arrGamesPublished.length; i++) {
+            // POPULATE SELECT ELEMENT WITH JSON.
+            ele.innerHTML = ele.innerHTML +
+                '<option value="' + arrGamesPublished[i]['ID'] + '">' + arrGamesPublished[i]['GamePublished'] + '</option>';
+        }
+
+	return;
+}
+
+function ChangeGameType() {
+	nGameType = document.getElementById("cmbGameType").value;
+
+	if (nGameType == 3) { /* Solo Game */
+		document.getElementById("div_gametitletype").style.display = "block";
+		document.getElementById("div_privatepublic").style.display = "none";
+		document.getElementById("div_solo").style.display = "block";
+		document.getElementById("div_join").style.display = "none";
+		document.getElementById("div_output").style.display = "none";
+	}
+	else { /* Private or Public Game */
+		document.getElementById("div_gametitletype").style.display = "block";
+		document.getElementById("div_privatepublic").style.display = "block";
+		document.getElementById("div_solo").style.display = "none";
+		document.getElementById("div_join").style.display = "none";
+		document.getElementById("div_output").style.display = "none";
+	}
+}
+
+function pbStartJoin_onclick() {
+
+	var UpperAlias;
+	var UpperReal;
+	
+	if (document.forms[0].tbAliasName.value.length < 1 || document.forms[0].tbAliasName.value.length > 10) {
+		alert('Please enter an Alias Name between 1 and 10 characters.');
+		document.forms[0].tbAliasName.focus();
+		return false;
+	}
+
+	UpperAlias = document.forms[0].tbAliasName.value.toUpperCase();
+
+	if (UpperAlias.includes('PHANTOM')) {
+		alert('Alias Name cannot contain the word Phantom. That name is used by the game for Phantom players');
+		document.forms[0].tbAliasName.focus();
+		return false;
+	}
+
+	if (document.forms[0].tbRealName.value.length < 1 || document.forms[0].tbRealName.value.length > 10) {
+		alert('Please enter your Real Name between 1 and 10 characters.');
+		document.forms[0].tbRealName.focus();
+		return false;
+	}
+
+	UpperReal = document.forms[0].tbRealName.value.toUpperCase();
+
+	if (UpperReal.includes('PHANTOM')) {
+		alert('Your Real Name cannot contain the word Phantom. That name is used by the game for Phantom players');
+		document.forms[0].tbRealName.focus();
+		return false;
+	}
+
+	tPlayerAliasName = document.forms[0].tbAliasName.value;
+	tPlayerRealName = document.forms[0].tbRealName.value;
+	localStorage.setItem("lsAliasName", tPlayerAliasName); 
+	localStorage.setItem("lsRealName", tPlayerRealName); 
+
+	document.forms[0].tbAliasNameOutput.value = tPlayerAliasName;
+	document.forms[0].tbRealNameOutput.value = tPlayerRealName;
+
+	nStartJoin = document.forms[0].cmbStartJoin.value;
+
+	if (nStartJoin==1) { /* Start a game */
+		document.getElementById("div_topsection").style.display = "block";
+		document.getElementById("div_gametitletype").style.display = "block";
+		document.getElementById("div_privatepublic").style.display = "block";
+		document.getElementById("div_solo").style.display = "none";
+		document.getElementById("div_join").style.display = "none";
+		document.getElementById("div_output").style.display = "none";
+		document.getElementById("cmbGameType").value = 1;
+	}
+
+	if (nStartJoin==2 || nStartJoin==3) { /* Join a private group (2) or public group (3) game */
+		document.getElementById("div_topsection").style.display = "block";
+		document.getElementById("div_gametitletype").style.display = "none";
+		document.getElementById("div_privatepublic").style.display = "none";
+		document.getElementById("div_solo").style.display = "none";
+		document.getElementById("div_join").style.display = "block";
+		document.getElementById("div_output").style.display = "none";
+		PopulateGames(); 
+	}
+
+	return true;
+}
+
+function pbCreatePublish_onclick() {
+
+	tGameTitle = document.forms[0].tbGameTitle.value;
+	nGameType = document.forms[0].cmbGameType.value; 
+	tGameType = document.forms[0].cmbGameType.options[document.forms[0].cmbGameType.selectedIndex].text;
+	nNumberCycles = Number(document.forms[0].cmbCycles.value);
+	nRealPlayers   = Number(document.forms[0].cmbRealPlayers.value);
+	nNumberPlayers   = Number(document.forms[0].cmbNumberPlayers.value);
+	nTokenPointSpaces = Number(document.forms[0].cmbTokenPointSpaces.value); 
+	bolSubtractOneToken = true;
+	if (document.forms[0].cmbSubtractOneToken.options[document.forms[0].cmbSubtractOneToken.selectedIndex].text == 'No') {
+		bolSubtractOneToken = false;
+	}
+	nGameID = 99999;
+	bolInvitesAvailable = true;
+	bolGameStarted = false;
+	bolGameOver = false;
+
+	if (tGameTitle.length < 1) {
+		alert('Please enter a Game Title.');
+		document.forms[0].tbGameTitle.focus();
+		return false;
+	}
+
+	if (nRealPlayers > nNumberPlayers) {
+		alert('The Number of Players has to be equal to or greater than the Number of Real Players.' + ' You entered: Number Players ' + nNumberPlayers + ', Real Players ' + nRealPlayers);
+		document.forms[0].tbNumberPlayers.focus();
+		return false;
+	} 
+
+	var tYes = confirm("Confirm you want to publish " + tGameTitle);
+	if (!tYes) { 
+		document.forms[0].tbActionTakenOutput.value = "Game not published";
+		return false; 
+	}
+
+	dtLastUpdate = Date.now();
+	PopulateObjGame();
+
+	/* hostcall Call */
+	objGame = hostcallPublishGame(objGame);
+
+	localStorage.setItem("lsMyGameID", objGame.gameID); 
+
+	PopulateVariables();
+	document.forms[0].tbActionTakenOutput.value = "Game published";
+
+	nPlayerGameID = objGame.gameID;
+	PopulateObjPlayer();
+
+	/*hostcall Call */
+	objPlayer = hostcallAddPlayer(objPlayer);
+
+	localStorage.setItem("lsMyPlayerID", objPlayer.playerID); 
+
+	PopulateObjGameBoard();
+
+	OnloadPage();
+
+	return true;
+}
+
+
+function pbJoinGame_onclick() {
+
+	var GameID;
+	tGameSelected = document.forms[0].cmbGameSelected.options[document.forms[0].cmbGameSelected.selectedIndex].text
+
+	if (tGameSelected == "No games available") {
+		alert("No games are available. You can start a new game.");
+		return false;
+	}
+
+	var tYes = confirm("Confirm you want to join " + tGameSelected);
+	if (!tYes) { 
+		document.forms[0].tbActionTakenOutput.value = "Game not selected";
+		return false; 
+	}
+
+	tGameSelected = String(tGameSelected);
+	GameID = tGameSelected.substring(0, 5);
+
+	/* hostcall call */
+	objGame = hostcallGetGameData(GameID);
+
+	nPlayerGameID = objGame.gameID;
+	PopulateObjPlayer();
+
+	/*hostcall Call */
+	objPlayer = hostcallAddPlayer(objPlayer);
+
+	PopulateVariables();
+
+	if (objPlayer.playerID == 0) {
+		alert("We are sorry. The maximum number of players have already joined. Please try another game.");
+	} else {
+		localStorage.setItem("lsMyPlayerID", objPlayer.playerID); 
+		localStorage.setItem("lsMyGameID", objGame.gameID); 
+	}
+
+	OnloadPage();
+
+	return true;
+}
+
+function pbStartGameSolo_onclick() {
+
+	tGameTitle = document.forms[0].tbGameTitle.value;
+	nGameType = document.forms[0].cmbGameType.value; 
+	tGameType = document.forms[0].cmbGameType.options[document.forms[0].cmbGameType.selectedIndex].text;
+	nNumberCycles = Number(document.forms[0].cmbCyclesSolo.value);
+	nRealPlayers   = 1;
+	nNumberPlayers   = Number(document.forms[0].cmbNumberPlayersSolo.value);
+	nTokenPointSpaces = Number(document.forms[0].cmbTokenPointSpacesSolo.value); 
+	bolSubtractOneToken = true;
+	if (document.forms[0].cmbSubtractOneTokenSolo.options[document.forms[0].cmbSubtractOneTokenSolo.selectedIndex].text == 'No') {
+		bolSubtractOneToken = false;
+	}
+	nGameID = 99999;
+	bolInvitesAvailable = false;
+	bolGameStarted = true;
+	bolGameOver = false;
+
+	if (tGameTitle.length < 1) {
+		alert('Please enter a Game Title.');
+		document.forms[0].tbGameTitle.focus();
+		return false;
+	}
+
+	var tYes = confirm("Confirm you want to start " + tGameTitle);
+	if (!tYes) { 
+		document.forms[0].tbActionTakenOutput.value = "Game not started";
+		return false; 
+	}
+
+	dtLastUpdate = Date.now();
+
+	PopulateObjGame();
+
+	/* hostcall Call */
+	objGame = hostcallPublishGame(objGame);
+
+	PopulateVariables();
+	document.forms[0].tbActionTakenOutput.value = "Game started";
+
+	nPlayerGameID = objGame.gameID;
+	PopulateObjPlayer();
+
+	/*hostcall Call */
+	objPlayer = hostcallAddPlayer(objPlayer);
+
+	localStorage.setItem("lsMyPlayerID", objPlayer.playerID); 
+	localStorage.setItem("lsMyGameID", objGame.gameID); 
+
+	PopulateObjGameBoard();
+
+	OnloadPage();
+
+	return true;
+}
+
+function pbClearGame_onclick() {
+
+	var tMessage;
+	var MyPlayerID = localStorage.getItem("lsMyPlayerID");
+	var GameID   = localStorage.getItem("lsMyGameID");
+
+	/* hostcall call */	
+	objGame = hostcallGetGameData(GameID);
+
+	if (objGame == null) {
+		bolGameOver = true;
+	} else {
+		bolGameOver = objGame.gameOver;
+	}
+
+	if (MyPlayerID == "1") {
+		tMessage = "You are the Host. This will end the game and clear all entries. Click OK to confirm. Click Cancel to cancel this action";
+	} 
+
+	if (MyPlayerID !== "1") {
+		if (bolGameOver == false) {
+			tMessage = "The Game has not ended. Wait until the game is over to clear your entries and leave the game.";
+			alert(tMessage);
+			return false;
+		} else {
+			tMessage = "This will clear your game entries. Click OK to confirm. Click Cancel to cancel this action.";
+		}
+	}
+
+	var tYes = confirm(tMessage);
+	if (!tYes) { 
+		return false; 
+	}
+
+	if (MyPlayerID == "1") {
+		/* hostcall Call */
+		hostcallClearGame(GameID);
+	}
+
+	localStorage.removeItem("lsAliasName");
+	localStorage.removeItem("lsRealName");
+	localStorage.removeItem("lsMyPlayerID");
+	localStorage.removeItem("lsMyGameID");
+
+	return true;
+}
+
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" onload="OnloadPage()">
+
+<form name="fmHome" id="fmHome">
+  <font size="10" face="Arial">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr>
+      <td colspan="2" width="456"><center><p><a href="infohomescreen.html"
+      onclick="PopUpDefinition('infohomescreen.html');return false" target><span><strong>Home Screen</strong></span></td>
+    </tr>
+  </table>
+
+  <div id="div_topsection" style="display:block" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td align="left" width="272">Your Alias Name <a tabindex="-1" href="infoAliasName.html"
+      onclick="PopUpDefinition('infoAliasName.html');return false" target>(info)</a> ...................................................</td>
+      <td align="left" width="190"><input id="tbAliasName" name="tbAliasName" size="20">
+    </td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Your Real Name <a tabindex="-1" href="inforealname.html"
+      onclick="PopUpDefinition('inforealname.html');return false" target>(info)</a> ...................................................</td>
+      <td align="left" width="190"><input id="tbRealName" name="tbRealName" size="20">
+    </td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Start or Join  <a tabindex="-1" href="infostartjoin.html"
+      onclick="PopUpDefinition('infostartjoin.html');return false" target>(info)</a> ..........................................................</td>
+      <td align="left" width="190"><select id="cmbStartJoin" name="cmbStartJoin" size="1">
+        <option value="1">Start a Game</option>
+        <option value="2">Join a Private Group</option>
+        <option value="3">Join a Public Group</option>
+      </select></td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="left" width="272">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="center" width="272"><input id="pbStartJoin" name="pbStartJoin" type="button"
+      value="           Start/Join           " LANGUAGE="javascript" onclick="return pbStartJoin_onclick()"></td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" width="456"><hr></td>
+    </tr>
+
+  </table>
+  </div> 
+
+  <div id="div_gametitletype" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+
+    <tr align="center">
+      <td align="left" width="272"> </td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Game Title <a tabindex="-1" href="infogametitle.html"
+      onclick="PopUpDefinition('infogametitle.html');return false" target>(info)</a> ............................................................</td>
+      <td align="left" width="190"><input id="tbGameTitle" name="tbGameTitle size="20">
+    </td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Select Game Type <a tabindex="-1" href="infogametype.html"
+      onclick="PopUpDefinition('infogametype.html');return false" target>(info)</a> ................................................</td>
+      <td align="left" width="190"><select id="cmbGameType" name="cmbGameType" 
+      style="left: 212px; top: 1px; size="1" onchange="ChangeGameType()">
+        <option selected value="1">Private Group</option>
+        <option value="2">Public Group</option>
+        <option value="3">Solo</option>
+      </select></td>
+    </tr>
+  </table>
+  </div> 
+
+<!-- div_privatepublic is visible when selecting Private Group and Public Group -->
+  <div id="div_privatepublic" style="display:none" align="left"> 
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+
+    <tr align="center">
+      <td align="left" width="272">Number of Cycles <a tabindex="-1" href="infocycles.html"
+      onclick="PopUpDefinition('infocycles.html');return false" target>(info)</a> .................................................</td>
+      <td align="left" width="190"><select id="cmbCycles" name="cmbCycles" size="1">
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Number of Players (including phantom players) <a tabindex="-1" href="infonumberplayers.html"
+      onclick="PopUpDefinition('infonumberplayers.html');return false" target>(info)</a> ..</td>
+      <td align="left" width="190"><select name="cmbNumberPlayers" size="1">
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+	<option value="8">8</option>
+	<option value="9">9</option>
+	<option value="10">10</option>
+      </select></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Number of Real Players <a tabindex="-1" href="inforealplayers.html"
+      onclick="PopUpDefinition('inforealplayers.html');return false" target>(info)</a> .......................................</td>
+      <td align="left" width="190"><select name="cmbRealPlayers" size="1">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+	<option value="4">4</option>
+        <option selected value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+	<option value="8">8</option>
+	<option value="9">9</option>
+	<option value="10">10</option>
+      </select></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Token Points Every <a tabindex="-1" href="infotokenpoints.html"
+      onclick="PopUpDefinition('infotokenpoints.html');return false" target>(info)</a> ..............................................</td>
+      <td align="left" width="190"><select name="cmbTokenPointSpaces" size="1">
+        <option value="5">5</option>
+        <option selected value="4">4</option>
+        <option value="3">3</option>
+      </select>&nbsp;Spaces</td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Subtract one Token with each crossing <a tabindex="-1" href="infosubtractone.html"
+      onclick="PopUpDefinition('infosubtractone.html');return false" target>(info)</a> ...............</td>
+      <td align="left" width="190"><select name="cmbSubtractOneToken" size="1">
+        <option selected value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select></td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="left" width="272">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td td colspan="2" align="center" width="272"><input id="pbCreatePublish" name="pbCreatePublish" type="button"
+      value="Create & Publish Game" LANGUAGE="javascript" onclick="return pbCreatePublish_onclick()"></td>
+    </tr>
+ </table>
+ </div>
+
+<!-- div_solo is visible when selecting Solo -->
+  <div id="div_solo" style="display:none" align="left"> 
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+
+    <tr align="center">
+      <td align="left" width="272">Number of Cycles <a tabindex="-1" href="infocycles.html"
+      onclick="PopUpDefinition('infocycles.html');return false" target>(info)</a> .................................................</td>
+      <td align="left" width="190"><select name="cmbCyclesSolo" size="1">
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Number of Players (including phantom players) <a tabindex="-1" href="infonumberplayers.html"
+      onclick="PopUpDefinition('infonumberplayers.html');return false" target>(info)</a> ..</td>
+      <td align="left" width="190"><select name="cmbNumberPlayersSolo" size="1">
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+	<option value="8">8</option>
+	<option value="9">9</option>
+	<option value="10">10</option>
+      </select></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Token Points Every <a tabindex="-1" href="infotokenpoints.html"
+      onclick="PopUpDefinition('infotokenpoints.html');return false" target>(info)</a> ..............................................</td>
+      <td align="left" width="190"><select name="cmbTokenPointSpacesSolo" size="1">
+        <option value="5">5</option>
+        <option selected value="4">4</option>
+        <option value="3">3</option>
+      </select>&nbsp;Spaces</td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Subtract one Token with each crossing <a tabindex="-1" href="infosubtractone.html"
+      onclick="PopUpDefinition('infosubtractone.html');return false" target>(info)</a> ...............</td>
+      <td align="left" width="190"><select name="cmbSubtractOneTokenSolo" size="1">
+        <option selected value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select></td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="left" width="272">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="center" width="272"><input id="pbStartGameSolo" name="pbStartGameSolo" type="button"
+      value="         Start Game         " LANGUAGE="javascript" onclick="return pbStartGameSolo_onclick()"></td>
+    </tr>
+ </table>
+ </div>
+
+<!-- div_join is visible when selecting Join -->
+  <div id="div_join" style="display:none" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+
+    <tr align="center">
+      <td align="left" width="272">Select a game from the list ............................................</td>
+      <td align="left" width="190"><select id="idGameSelected" name="cmbGameSelected" size="1">
+     </select></td>
+    </tr> 
+
+    <tr align="center">
+      <td colspan="2" align="left" width="272">Then click the Join Game button. </td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="left" width="272">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="center" width="272"><input id="pbJoinGame" name="pbJoinGame" type="button"
+      value="          Join Game          " LANGUAGE="javascript" onclick="return pbJoinGame_onclick()"></td>
+    </tr>
+
+ </table>
+ </div>
+
+  <div id="div_output" style="display:none" align="left">
+
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="left">
+      <td colspan="2" width="462"><input tabindex="-1" id="tbMessagesNotificationOutput" name="tbMessagesNotificationOutput" readOnly size="70" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center"> 
+      <td align="center" width="20"><br></td>
+    </tr>
+   </table>
+
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td align="left" width="272">Your Alias Name ...................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbAliasNameOutput" name="tbAliasNameOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Your Real Name ...................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbRealNameOutput" name="tbRealNameOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">The Game ID ........................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbGameIDOutput" name="tbGameIDOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">The Game Title .....................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbGameTitleOutput" name="tbGameTitleOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Game Type ...........................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbGameTypeOutput" name="tbGameTypeOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Number of Players ................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbNumberPlayersOutput" name="tbNumberPlayersOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Number of Cycles .................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbNumberCyclesOutput" name="tbNumberCyclesOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Real Players .........................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbRealPlayersOutput" name="tbRealPlayersOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Token Point Spaces ..............................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbTokenPointSpacesOutput" name="tbTokenPointSpacesOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Subtract One Token per Crossing .........................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbSubtractOneTokenOutput" name="tbSubtractOneTokenOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Action Taken .........................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbActionTakenOutput" name="tbActionTakenOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Invites Available ....................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbInvitesAvailableOutput" name="tbInvitesAvailableOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Game Started ........................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbGameStartedOutput" name="tbGameStartedOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Playing Time ..........................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayingTimeOutput" name="tbPlayingTimeOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="272">Game Over ............................................................................</td>
+      <td align="left" width="190"><input tabindex="-1" id="tbGameOverOutput" name="tbGameOverOutput" readOnly
+      size="25" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="left" width="272">&nbsp;</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" align="center" width="272"><input id="pbClearGame" name="pbClearGame" type="button"
+      value="     Clear Game     " LANGUAGE="javascript" onclick="return pbClearGame_onclick()"></td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" width="456"><br></td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" width="456">Press Home to refresh screen.</td>
+    </tr>
+
+    <tr align="center">
+      <td colspan="2" width="456"><hr></td>
+    </tr>
+  </table>
+
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td colspan="2" width="456"><input tabindex="-1" id="tbMessageOutput" name="tbMessageOutput" readOnly size="100" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center"> 
+      <td align="center" width="20"><br></td>
+    </tr>
+   </table>
+
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="55%">
+    <tr align="center">
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer1Output" name="tbPlayer1Output" readOnly
+      size="20" style="border: medium none"></td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer2Output" name="tbPlayer2Output" readOnly
+      size="20" style="border: medium none"></td>
+    </tr>
+
+
+    <tr align="center">
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer3Output" name="tbPlayer3Output" readOnly
+      size="20" style="border: medium none"></td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer4Output" name="tbPlayer4Output" readOnly
+      size="20" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer5Output" name="tbPlayer5Output" readOnly
+      size="20" style="border: medium none"></td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer6Output" name="tbPlayer6Output" readOnly
+      size="20" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer7Output" name="tbPlayer7Output" readOnly
+      size="20" style="border: medium none"></td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer8Output" name="tbPlayer8Output" readOnly
+      size="20" style="border: medium none"></td>
+    </tr>
+
+    <tr align="center">
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer9Output" name="tbPlayer9Output" readOnly
+      size="20" style="border: medium none"></td>
+      <td align="left" width="190"><input tabindex="-1" id="tbPlayer10Output" name="tbPlayer10Output" readOnly
+      size="20" style="border: medium none"></td>
+    </tr>
+
+  </table>
+  </div>
+</form>
+</font>
+</body>
+</html>

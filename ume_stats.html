@@ -1,0 +1,1081 @@
+<html><head><title>Uncle Maurey's Estate</title></head><base target='main'>
+
+<script src="hostcalls.js" ></script>
+<script src="commonvarfunctions.js" ></script>
+
+<script language='javascript'>
+
+function OnloadPage() {
+
+	var i;
+	var z;
+	var NumberPlayers;
+	var GameOver = false;
+	var PlayerName = [];
+	var Winner;
+	var Advanced;
+	var CurrentSpace;
+	var TokensHeld;
+	var FirstPart;
+	var SecondPart;
+	var TokenValue;
+	var TokenValueDisplay;
+	var ValueTokensHeld;
+	var ValueTokensHeldDisplay;
+	var NetWorth;
+	var AdjustedNetWorth;
+	var AdjustedNetWorthDisplay;
+	var GameID = localStorage.getItem("lsMyGameID");
+	var MyPlayerID = localStorage.getItem("lsMyPlayerID");
+
+	/* hostcall Call */
+	objGame = hostcallGetGameData(GameID);
+
+	if (objGame == null || objGame.gameStarted == false) {
+		document.getElementById("div_topline").style.display = "block";
+		document.getElementById("div_data").style.display = "none";
+		return;
+	}
+
+	NumberPlayers = objGame.gameNumberPlayers;
+	TokenValue = objGame.gameCurrentTokenValue;
+
+	if (objGame.gameOver == true) {
+		GameOver = true;
+	}
+
+	/* hostcall Call */
+	arrPlayers = hostcallGetAllGamePlayers(GameID);
+
+
+	/* Sort the players object by reverse order of their cycle networth (highest to lowest). */
+	arrPlayers.sort(function (a, b) {return a.playerCycleNetWorth - b.playerCycleNetWorth});
+	arrPlayers.reverse();
+
+	for (i = 0; i < NumberPlayers; i++) {
+		if (GameOver == true) {
+			PlayerName[i] = arrPlayers[i].playerRealName;
+		} else {
+			PlayerName[i] = arrPlayers[i].playerAliasName;
+		}
+	}
+
+	document.forms[0].tbCycleNetWorthHeadingOutput.style.textAlign = "right";
+	document.forms[0].tbCycleBidHeadingOutput.style.textAlign = "right";
+	document.forms[0].tbCycleInterestIncomeHeadingOutput.style.textAlign = "right";
+	document.forms[0].tbCycleLoanExpenseHeadingOutput.style.textAlign = "right";
+	document.forms[0].tbCycleTokenPurchasesHeadingOutput.style.textAlign = "right";
+	document.forms[0].tbCycleTokenSalesHeadingOutput.style.textAlign = "right";
+
+	document.forms[0].tbGameNetWorthHeadingOutput.style.textAlign = "right";
+	document.forms[0].tbGameBidHeadingOutput.style.textAlign = "right";
+	document.forms[0].tbGameInterestIncomeHeadingOutput.style.textAlign = "right";
+	document.forms[0].tbGameLoanExpenseHeadingOutput.style.textAlign = "right";
+	document.forms[0].tbGameTokenPurchasesHeadingOutput.style.textAlign = "right";
+	document.forms[0].tbGameTokenSalesHeadingOutput.style.textAlign = "right";
+
+	document.forms[0].tbCycleNetWorthOutput1.style.textAlign = "right";
+	document.forms[0].tbCycleNetWorthOutput2.style.textAlign = "right";
+	document.forms[0].tbCycleNetWorthOutput3.style.textAlign = "right";
+	document.forms[0].tbCycleNetWorthOutput4.style.textAlign = "right";
+	document.forms[0].tbCycleNetWorthOutput5.style.textAlign = "right";
+	document.forms[0].tbCycleNetWorthOutput6.style.textAlign = "right";
+	document.forms[0].tbCycleNetWorthOutput7.style.textAlign = "right";
+	document.forms[0].tbCycleNetWorthOutput8.style.textAlign = "right";
+	document.forms[0].tbCycleNetWorthOutput9.style.textAlign = "right";
+	document.forms[0].tbCycleNetWorthOutput10.style.textAlign = "right";
+
+	document.forms[0].tbCycleBidIncExpOutput1.style.textAlign = "right";
+	document.forms[0].tbCycleBidIncExpOutput2.style.textAlign = "right";
+	document.forms[0].tbCycleBidIncExpOutput3.style.textAlign = "right";
+	document.forms[0].tbCycleBidIncExpOutput4.style.textAlign = "right";
+	document.forms[0].tbCycleBidIncExpOutput5.style.textAlign = "right";
+	document.forms[0].tbCycleBidIncExpOutput6.style.textAlign = "right";
+	document.forms[0].tbCycleBidIncExpOutput7.style.textAlign = "right";
+	document.forms[0].tbCycleBidIncExpOutput8.style.textAlign = "right";
+	document.forms[0].tbCycleBidIncExpOutput9.style.textAlign = "right";
+	document.forms[0].tbCycleBidIncExpOutput10.style.textAlign = "right";
+
+	document.forms[0].tbCycleInterestIncOutput1.style.textAlign = "right";
+	document.forms[0].tbCycleInterestIncOutput2.style.textAlign = "right";
+	document.forms[0].tbCycleInterestIncOutput3.style.textAlign = "right";
+	document.forms[0].tbCycleInterestIncOutput4.style.textAlign = "right";
+	document.forms[0].tbCycleInterestIncOutput5.style.textAlign = "right";
+	document.forms[0].tbCycleInterestIncOutput6.style.textAlign = "right";
+	document.forms[0].tbCycleInterestIncOutput7.style.textAlign = "right";
+	document.forms[0].tbCycleInterestIncOutput8.style.textAlign = "right";
+	document.forms[0].tbCycleInterestIncOutput9.style.textAlign = "right";
+	document.forms[0].tbCycleInterestIncOutput10.style.textAlign = "right";
+
+	document.forms[0].tbCycleLoanExpOutput1.style.textAlign = "right";
+	document.forms[0].tbCycleLoanExpOutput2.style.textAlign = "right";
+	document.forms[0].tbCycleLoanExpOutput3.style.textAlign = "right";
+	document.forms[0].tbCycleLoanExpOutput4.style.textAlign = "right";
+	document.forms[0].tbCycleLoanExpOutput5.style.textAlign = "right";
+	document.forms[0].tbCycleLoanExpOutput6.style.textAlign = "right";
+	document.forms[0].tbCycleLoanExpOutput7.style.textAlign = "right";
+	document.forms[0].tbCycleLoanExpOutput8.style.textAlign = "right";
+	document.forms[0].tbCycleLoanExpOutput9.style.textAlign = "right";
+	document.forms[0].tbCycleLoanExpOutput10.style.textAlign = "right";
+
+	document.forms[0].tbCycleTokenPurchasesOutput1.style.textAlign = "right";
+	document.forms[0].tbCycleTokenPurchasesOutput2.style.textAlign = "right";
+	document.forms[0].tbCycleTokenPurchasesOutput3.style.textAlign = "right";
+	document.forms[0].tbCycleTokenPurchasesOutput4.style.textAlign = "right";
+	document.forms[0].tbCycleTokenPurchasesOutput5.style.textAlign = "right";
+	document.forms[0].tbCycleTokenPurchasesOutput6.style.textAlign = "right";
+	document.forms[0].tbCycleTokenPurchasesOutput7.style.textAlign = "right";
+	document.forms[0].tbCycleTokenPurchasesOutput8.style.textAlign = "right";
+	document.forms[0].tbCycleTokenPurchasesOutput9.style.textAlign = "right";
+	document.forms[0].tbCycleTokenPurchasesOutput10.style.textAlign = "right";
+
+	document.forms[0].tbCycleTokenSalesOutput1.style.textAlign = "right";
+	document.forms[0].tbCycleTokenSalesOutput2.style.textAlign = "right";
+	document.forms[0].tbCycleTokenSalesOutput3.style.textAlign = "right";
+	document.forms[0].tbCycleTokenSalesOutput4.style.textAlign = "right";
+	document.forms[0].tbCycleTokenSalesOutput5.style.textAlign = "right";
+	document.forms[0].tbCycleTokenSalesOutput6.style.textAlign = "right";
+	document.forms[0].tbCycleTokenSalesOutput7.style.textAlign = "right";
+	document.forms[0].tbCycleTokenSalesOutput8.style.textAlign = "right";
+	document.forms[0].tbCycleTokenSalesOutput9.style.textAlign = "right";
+	document.forms[0].tbCycleTokenSalesOutput10.style.textAlign = "right";
+
+	document.forms[0].tbGameNetWorthOutput1.style.textAlign = "right";
+	document.forms[0].tbGameNetWorthOutput2.style.textAlign = "right";
+	document.forms[0].tbGameNetWorthOutput3.style.textAlign = "right";
+	document.forms[0].tbGameNetWorthOutput4.style.textAlign = "right";
+	document.forms[0].tbGameNetWorthOutput5.style.textAlign = "right";
+	document.forms[0].tbGameNetWorthOutput6.style.textAlign = "right";
+	document.forms[0].tbGameNetWorthOutput7.style.textAlign = "right";
+	document.forms[0].tbGameNetWorthOutput8.style.textAlign = "right";
+	document.forms[0].tbGameNetWorthOutput9.style.textAlign = "right";
+	document.forms[0].tbGameNetWorthOutput10.style.textAlign = "right";
+
+	document.forms[0].tbGameBidIncExpOutput1.style.textAlign = "right";
+	document.forms[0].tbGameBidIncExpOutput2.style.textAlign = "right";
+	document.forms[0].tbGameBidIncExpOutput3.style.textAlign = "right";
+	document.forms[0].tbGameBidIncExpOutput4.style.textAlign = "right";
+	document.forms[0].tbGameBidIncExpOutput5.style.textAlign = "right";
+	document.forms[0].tbGameBidIncExpOutput6.style.textAlign = "right";
+	document.forms[0].tbGameBidIncExpOutput7.style.textAlign = "right";
+	document.forms[0].tbGameBidIncExpOutput8.style.textAlign = "right";
+	document.forms[0].tbGameBidIncExpOutput9.style.textAlign = "right";
+	document.forms[0].tbGameBidIncExpOutput10.style.textAlign = "right";
+
+	document.forms[0].tbGameInterestIncOutput1.style.textAlign = "right";
+	document.forms[0].tbGameInterestIncOutput2.style.textAlign = "right";
+	document.forms[0].tbGameInterestIncOutput3.style.textAlign = "right";
+	document.forms[0].tbGameInterestIncOutput4.style.textAlign = "right";
+	document.forms[0].tbGameInterestIncOutput5.style.textAlign = "right";
+	document.forms[0].tbGameInterestIncOutput6.style.textAlign = "right";
+	document.forms[0].tbGameInterestIncOutput7.style.textAlign = "right";
+	document.forms[0].tbGameInterestIncOutput8.style.textAlign = "right";
+	document.forms[0].tbGameInterestIncOutput9.style.textAlign = "right";
+	document.forms[0].tbGameInterestIncOutput10.style.textAlign = "right";
+
+	document.forms[0].tbGameLoanExpOutput1.style.textAlign = "right";
+	document.forms[0].tbGameLoanExpOutput2.style.textAlign = "right";
+	document.forms[0].tbGameLoanExpOutput3.style.textAlign = "right";
+	document.forms[0].tbGameLoanExpOutput4.style.textAlign = "right";
+	document.forms[0].tbGameLoanExpOutput5.style.textAlign = "right";
+	document.forms[0].tbGameLoanExpOutput6.style.textAlign = "right";
+	document.forms[0].tbGameLoanExpOutput7.style.textAlign = "right";
+	document.forms[0].tbGameLoanExpOutput8.style.textAlign = "right";
+	document.forms[0].tbGameLoanExpOutput9.style.textAlign = "right";
+	document.forms[0].tbGameLoanExpOutput10.style.textAlign = "right";
+
+	document.forms[0].tbGameTokenPurchasesOutput1.style.textAlign = "right";
+	document.forms[0].tbGameTokenPurchasesOutput2.style.textAlign = "right";
+	document.forms[0].tbGameTokenPurchasesOutput3.style.textAlign = "right";
+	document.forms[0].tbGameTokenPurchasesOutput4.style.textAlign = "right";
+	document.forms[0].tbGameTokenPurchasesOutput5.style.textAlign = "right";
+	document.forms[0].tbGameTokenPurchasesOutput6.style.textAlign = "right";
+	document.forms[0].tbGameTokenPurchasesOutput7.style.textAlign = "right";
+	document.forms[0].tbGameTokenPurchasesOutput8.style.textAlign = "right";
+	document.forms[0].tbGameTokenPurchasesOutput9.style.textAlign = "right";
+	document.forms[0].tbGameTokenPurchasesOutput10.style.textAlign = "right";
+
+	document.forms[0].tbGameTokenSalesOutput1.style.textAlign = "right";
+	document.forms[0].tbGameTokenSalesOutput2.style.textAlign = "right";
+	document.forms[0].tbGameTokenSalesOutput3.style.textAlign = "right";
+	document.forms[0].tbGameTokenSalesOutput4.style.textAlign = "right";
+	document.forms[0].tbGameTokenSalesOutput5.style.textAlign = "right";
+	document.forms[0].tbGameTokenSalesOutput6.style.textAlign = "right";
+	document.forms[0].tbGameTokenSalesOutput7.style.textAlign = "right";
+	document.forms[0].tbGameTokenSalesOutput8.style.textAlign = "right";
+	document.forms[0].tbGameTokenSalesOutput9.style.textAlign = "right";
+	document.forms[0].tbGameTokenSalesOutput10.style.textAlign = "right";
+
+
+	for (i = 0; i < NumberPlayers; i++) {
+		if (arrPlayers[i].playerID == MyPlayerID) {
+			document.forms[0].tbStatusHeadingOutput.value = "Results from Last Round:";
+			document.getElementById("tbStatusHeadingOutput").style.fontWeight = "900";
+			z = MakeCurrency(arrPlayers[i].playerBidIncomeExpense);
+			Advanced = arrPlayers[i].playerSpacesAdvanced;
+			CurrentSpace = arrPlayers[i].playerCurrentSpace;
+			TokensHeld = arrPlayers[i].playerTotalTokensHeld;
+			ValueTokensHeld = TokensHeld * TokenValue;
+			NetWorth = arrPlayers[i].playerGameNetWorth; 
+			AdjustedNetWorth = NetWorth + ValueTokensHeld;
+			ValueTokensHeldDisplay = MakeCurrency(ValueTokensHeld);
+			AdjustedNetWorthDisplay = MakeCurrency(AdjustedNetWorth); 
+			if (arrPlayers[i].playerBidIncomeExpense > 0) {
+				FirstPart = "Your Bid Income/Expense was +" + z;
+			} else {
+				FirstPart = "Your Bid Income/Expense was " + z;
+			}
+			TokenValueDisplay = MakeCurrency(TokenValue);
+			SecondPart = " ";
+			if (arrPlayers[i].playerSavingsInterestEarned != 0) {
+				SecondPart = " Savings Interest Earned: " + MakeCurrency(arrPlayers[i].playerSavingsInterestEarned) + ".";
+			}
+			if (arrPlayers[i].playerLoanInterestPaid != 0) {
+				SecondPart = " Loan Interest Paid: " + MakeCurrency(arrPlayers[i].playerLoanInterestPaid) + ".";
+			}
+			document.forms[0].tbStatus1Output.value = FirstPart + ". You advanced " + Advanced + " spaces and your current space is " + CurrentSpace;
+			document.forms[0].tbStatus1Output.value = document.forms[0].tbStatus1Output.value + "." + SecondPart;
+			FirstPart = "You are holding " + TokensHeld + " Tokens.";
+			FirstPart = FirstPart + " Token Value: " + TokenValueDisplay + ". The current value of all your tokens is " + ValueTokensHeldDisplay;
+			document.forms[0].tbStatus2Output.value = FirstPart + ". Adding this value to your Game Net Worth: " + AdjustedNetWorthDisplay + ".";
+		}
+ 
+		if (i == 0) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbCyclePlayerNameOutput1.style.background = "lightgreen";
+				document.forms[0].tbCycleNetWorthOutput1.style.background = "lightgreen";
+				document.forms[0].tbCycleBidIncExpOutput1.style.background = "lightgreen";
+				document.forms[0].tbCycleInterestIncOutput1.style.background = "lightgreen";
+				document.forms[0].tbCycleLoanExpOutput1.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenPurchasesOutput1.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenSalesOutput1.style.background = "lightgreen";
+				tr_c1.style.background = "lightgreen";
+			}
+			document.forms[0].tbCyclePlayerNameOutput1.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerCycleNetWorth);
+			document.forms[0].tbCycleNetWorthOutput1.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleBidIncomeExpense); 
+			document.forms[0].tbCycleBidIncExpOutput1.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleSavingsInterestEarned); 
+			document.forms[0].tbCycleInterestIncOutput1.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleLoanInterestPaid); 
+			document.forms[0].tbCycleLoanExpOutput1.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenPurchases); 
+			document.forms[0].tbCycleTokenPurchasesOutput1.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenSales); 
+			document.forms[0].tbCycleTokenSalesOutput1.value = z;
+		}
+		if (i == 1) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbCyclePlayerNameOutput2.style.background = "lightgreen";
+				document.forms[0].tbCycleNetWorthOutput2.style.background = "lightgreen";
+				document.forms[0].tbCycleBidIncExpOutput2.style.background = "lightgreen";
+				document.forms[0].tbCycleInterestIncOutput2.style.background = "lightgreen";
+				document.forms[0].tbCycleLoanExpOutput2.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenPurchasesOutput2.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenSalesOutput2.style.background = "lightgreen";
+				tr_c2.style.background = "lightgreen";
+			}
+			document.forms[0].tbCyclePlayerNameOutput2.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerCycleNetWorth);
+			document.forms[0].tbCycleNetWorthOutput2.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleBidIncomeExpense); 
+			document.forms[0].tbCycleBidIncExpOutput2.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleSavingsInterestEarned); 
+			document.forms[0].tbCycleInterestIncOutput2.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleLoanInterestPaid); 
+			document.forms[0].tbCycleLoanExpOutput2.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenPurchases); 
+			document.forms[0].tbCycleTokenPurchasesOutput2.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenSales); 
+			document.forms[0].tbCycleTokenSalesOutput2.value = z;
+		}
+		if (i == 2) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbCyclePlayerNameOutput3.style.background = "lightgreen";
+				document.forms[0].tbCycleNetWorthOutput3.style.background = "lightgreen";
+				document.forms[0].tbCycleBidIncExpOutput3.style.background = "lightgreen";
+				document.forms[0].tbCycleInterestIncOutput3.style.background = "lightgreen";
+				document.forms[0].tbCycleLoanExpOutput3.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenPurchasesOutput3.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenSalesOutput3.style.background = "lightgreen";
+				tr_c3.style.background = "lightgreen";
+			}
+			document.forms[0].tbCyclePlayerNameOutput3.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerCycleNetWorth);
+			document.forms[0].tbCycleNetWorthOutput3.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleBidIncomeExpense); 
+			document.forms[0].tbCycleBidIncExpOutput3.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleSavingsInterestEarned); 
+			document.forms[0].tbCycleInterestIncOutput3.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleLoanInterestPaid); 
+			document.forms[0].tbCycleLoanExpOutput3.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenPurchases); 
+			document.forms[0].tbCycleTokenPurchasesOutput3.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenSales); 
+			document.forms[0].tbCycleTokenSalesOutput3.value = z;
+		}
+		if (i == 3) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbCyclePlayerNameOutput4.style.background = "lightgreen";
+				document.forms[0].tbCycleNetWorthOutput4.style.background = "lightgreen";
+				document.forms[0].tbCycleBidIncExpOutput4.style.background = "lightgreen";
+				document.forms[0].tbCycleInterestIncOutput4.style.background = "lightgreen";
+				document.forms[0].tbCycleLoanExpOutput4.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenPurchasesOutput4.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenSalesOutput4.style.background = "lightgreen";
+				tr_c4.style.background = "lightgreen";
+			}
+			document.forms[0].tbCyclePlayerNameOutput4.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerCycleNetWorth);
+			document.forms[0].tbCycleNetWorthOutput4.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleBidIncomeExpense); 
+			document.forms[0].tbCycleBidIncExpOutput4.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleSavingsInterestEarned); 
+			document.forms[0].tbCycleInterestIncOutput4.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleLoanInterestPaid); 
+			document.forms[0].tbCycleLoanExpOutput4.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenPurchases); 
+			document.forms[0].tbCycleTokenPurchasesOutput4.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenSales); 
+			document.forms[0].tbCycleTokenSalesOutput4.value = z;
+		}
+		if (i == 4) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbCyclePlayerNameOutput5.style.background = "lightgreen";
+				document.forms[0].tbCycleNetWorthOutput5.style.background = "lightgreen";
+				document.forms[0].tbCycleBidIncExpOutput5.style.background = "lightgreen";
+				document.forms[0].tbCycleInterestIncOutput5.style.background = "lightgreen";
+				document.forms[0].tbCycleLoanExpOutput5.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenPurchasesOutput5.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenSalesOutput5.style.background = "lightgreen";
+				tr_c5.style.background = "lightgreen";
+			}
+			document.forms[0].tbCyclePlayerNameOutput5.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerCycleNetWorth);
+			document.forms[0].tbCycleNetWorthOutput5.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleBidIncomeExpense); 
+			document.forms[0].tbCycleBidIncExpOutput5.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleSavingsInterestEarned); 
+			document.forms[0].tbCycleInterestIncOutput5.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleLoanInterestPaid); 
+			document.forms[0].tbCycleLoanExpOutput5.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenPurchases); 
+			document.forms[0].tbCycleTokenPurchasesOutput5.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenSales); 
+			document.forms[0].tbCycleTokenSalesOutput5.value = z;
+		}
+		if (i == 5) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbCyclePlayerNameOutput6.style.background = "lightgreen";
+				document.forms[0].tbCycleNetWorthOutput6.style.background = "lightgreen";
+				document.forms[0].tbCycleBidIncExpOutput6.style.background = "lightgreen";
+				document.forms[0].tbCycleInterestIncOutput6.style.background = "lightgreen";
+				document.forms[0].tbCycleLoanExpOutput6.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenPurchasesOutput6.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenSalesOutput6.style.background = "lightgreen";
+				tr_c6.style.background = "lightgreen";
+			}
+			document.forms[0].tbCyclePlayerNameOutput6.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerCycleNetWorth);
+			document.forms[0].tbCycleNetWorthOutput6.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleBidIncomeExpense); 
+			document.forms[0].tbCycleBidIncExpOutput6.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleSavingsInterestEarned); 
+			document.forms[0].tbCycleInterestIncOutput6.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleLoanInterestPaid); 
+			document.forms[0].tbCycleLoanExpOutput6.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenPurchases); 
+			document.forms[0].tbCycleTokenPurchasesOutput6.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenSales); 
+			document.forms[0].tbCycleTokenSalesOutput6.value = z;
+		}
+		if (i == 6) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbCyclePlayerNameOutput7.style.background = "lightgreen";
+				document.forms[0].tbCycleNetWorthOutput7.style.background = "lightgreen";
+				document.forms[0].tbCycleBidIncExpOutput7.style.background = "lightgreen";
+				document.forms[0].tbCycleInterestIncOutput7.style.background = "lightgreen";
+				document.forms[0].tbCycleLoanExpOutput7.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenPurchasesOutput7.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenSalesOutput7.style.background = "lightgreen";
+				tr_c7.style.background = "lightgreen";
+			}
+			document.forms[0].tbCyclePlayerNameOutput7.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerCycleNetWorth);
+			document.forms[0].tbCycleNetWorthOutput7.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleBidIncomeExpense); 
+			document.forms[0].tbCycleBidIncExpOutput7.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleSavingsInterestEarned); 
+			document.forms[0].tbCycleInterestIncOutput7.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleLoanInterestPaid); 
+			document.forms[0].tbCycleLoanExpOutput7.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenPurchases); 
+			document.forms[0].tbCycleTokenPurchasesOutput7.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenSales); 
+			document.forms[0].tbCycleTokenSalesOutput7.value = z;
+		}
+		if (i == 7) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbCyclePlayerNameOutput8.style.background = "lightgreen";
+				document.forms[0].tbCycleNetWorthOutput8.style.background = "lightgreen";
+				document.forms[0].tbCycleBidIncExpOutput8.style.background = "lightgreen";
+				document.forms[0].tbCycleInterestIncOutput8.style.background = "lightgreen";
+				document.forms[0].tbCycleLoanExpOutput8.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenPurchasesOutput8.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenSalesOutput8.style.background = "lightgreen";
+				tr_c8.style.background = "lightgreen";
+			}
+			document.forms[0].tbCyclePlayerNameOutput8.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerCycleNetWorth);
+			document.forms[0].tbCycleNetWorthOutput8.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleBidIncomeExpense); 
+			document.forms[0].tbCycleBidIncExpOutput8.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleSavingsInterestEarned); 
+			document.forms[0].tbCycleInterestIncOutput8.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleLoanInterestPaid); 
+			document.forms[0].tbCycleLoanExpOutput8.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenPurchases); 
+			document.forms[0].tbCycleTokenPurchasesOutput8.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenSales); 
+			document.forms[0].tbCycleTokenSalesOutput8.value = z;
+		}
+		if (i == 8) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbCyclePlayerNameOutput9.style.background = "lightgreen";
+				document.forms[0].tbCycleNetWorthOutput9.style.background = "lightgreen";
+				document.forms[0].tbCycleBidIncExpOutput9.style.background = "lightgreen";
+				document.forms[0].tbCycleInterestIncOutput9.style.background = "lightgreen";
+				document.forms[0].tbCycleLoanExpOutput9.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenPurchasesOutput9.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenSalesOutput9.style.background = "lightgreen";
+				tr_c9.style.background = "lightgreen";
+			}
+			document.forms[0].tbCyclePlayerNameOutput9.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerCycleNetWorth);
+			document.forms[0].tbCycleNetWorthOutput9.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleBidIncomeExpense); 
+			document.forms[0].tbCycleBidIncExpOutput9.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleSavingsInterestEarned); 
+			document.forms[0].tbCycleInterestIncOutput9.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleLoanInterestPaid); 
+			document.forms[0].tbCycleLoanExpOutput9.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenPurchases); 
+			document.forms[0].tbCycleTokenPurchasesOutput9.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenSales); 
+			document.forms[0].tbCycleTokenSalesOutput9.value = z;
+		}
+		if (i == 9) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbCyclePlayerNameOutput10.style.background = "lightgreen";
+				document.forms[0].tbCycleNetWorthOutput10.style.background = "lightgreen";
+				document.forms[0].tbCycleBidIncExpOutput10.style.background = "lightgreen";
+				document.forms[0].tbCycleInterestIncOutput10.style.background = "lightgreen";
+				document.forms[0].tbCycleLoanExpOutput10.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenPurchasesOutput10.style.background = "lightgreen";
+				document.forms[0].tbCycleTokenSalesOutput10.style.background = "lightgreen";
+				tr_c10.style.background = "lightgreen";
+			}
+			document.forms[0].tbCyclePlayerNameOutput10.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerCycleNetWorth);
+			document.forms[0].tbCycleNetWorthOutput10.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleBidIncomeExpense); 
+			document.forms[0].tbCycleBidIncExpOutput10.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleSavingsInterestEarned); 
+			document.forms[0].tbCycleInterestIncOutput10.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleLoanInterestPaid); 
+			document.forms[0].tbCycleLoanExpOutput10.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenPurchases); 
+			document.forms[0].tbCycleTokenPurchasesOutput10.value = z;
+			z = MakeCurrency(arrPlayers[i].playerCycleTokenSales); 
+			document.forms[0].tbCycleTokenSalesOutput10.value = z;
+		}
+	}
+
+	/* Sort the players object by reverse order of their game networth (highest to lowest). */
+	arrPlayers.sort(function (a, b) {return a.playerGameNetWorth - b.playerGameNetWorth});
+	arrPlayers.reverse();
+
+	if (GameOver == true) {
+		Winner = arrPlayers[0].playerRealName;
+	}
+
+	for (i = 0; i < NumberPlayers; i++) {
+		if (GameOver == true) {
+			PlayerName[i] = arrPlayers[i].playerRealName;
+		} else {
+			PlayerName[i] = arrPlayers[i].playerAliasName;
+		}
+	}
+
+	for (i = 0; i < NumberPlayers; i++) {
+		if (i == 0) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbGamePlayerNameOutput1.style.background = "lightgreen";
+				document.forms[0].tbGameNetWorthOutput1.style.background = "lightgreen";
+				document.forms[0].tbGameBidIncExpOutput1.style.background = "lightgreen";
+				document.forms[0].tbGameInterestIncOutput1.style.background = "lightgreen";
+				document.forms[0].tbGameLoanExpOutput1.style.background = "lightgreen";
+				document.forms[0].tbGameTokenPurchasesOutput1.style.background = "lightgreen";
+				document.forms[0].tbGameTokenSalesOutput1.style.background = "lightgreen";
+				tr_g1.style.background = "lightgreen";
+			}
+
+			document.forms[0].tbGamePlayerNameOutput1.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerGameNetWorth);
+			document.forms[0].tbGameNetWorthOutput1.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameBidIncomeExpense);
+			document.forms[0].tbGameBidIncExpOutput1.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameSavingsInterestEarned);
+			document.forms[0].tbGameInterestIncOutput1.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameLoanInterestPaid);
+			document.forms[0].tbGameLoanExpOutput1.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenPurchases); 
+			document.forms[0].tbGameTokenPurchasesOutput1.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenSales);
+			document.forms[0].tbGameTokenSalesOutput1.value = z;
+		}
+		if (i == 1) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbGamePlayerNameOutput2.style.background = "lightgreen";
+				document.forms[0].tbGameNetWorthOutput2.style.background = "lightgreen";
+				document.forms[0].tbGameBidIncExpOutput2.style.background = "lightgreen";
+				document.forms[0].tbGameInterestIncOutput2.style.background = "lightgreen";
+				document.forms[0].tbGameLoanExpOutput2.style.background = "lightgreen";
+				document.forms[0].tbGameTokenPurchasesOutput2.style.background = "lightgreen";
+				document.forms[0].tbGameTokenSalesOutput2.style.background = "lightgreen";
+				tr_g2.style.background = "lightgreen";
+			}
+
+			document.forms[0].tbGamePlayerNameOutput2.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerGameNetWorth);
+			document.forms[0].tbGameNetWorthOutput2.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameBidIncomeExpense);
+			document.forms[0].tbGameBidIncExpOutput2.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameSavingsInterestEarned);
+			document.forms[0].tbGameInterestIncOutput2.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameLoanInterestPaid);
+			document.forms[0].tbGameLoanExpOutput2.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenPurchases); 
+			document.forms[0].tbGameTokenPurchasesOutput2.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenSales);
+			document.forms[0].tbGameTokenSalesOutput2.value = z;
+		}
+		if (i == 2) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbGamePlayerNameOutput3.style.background = "lightgreen";
+				document.forms[0].tbGameNetWorthOutput3.style.background = "lightgreen";
+				document.forms[0].tbGameBidIncExpOutput3.style.background = "lightgreen";
+				document.forms[0].tbGameInterestIncOutput3.style.background = "lightgreen";
+				document.forms[0].tbGameLoanExpOutput3.style.background = "lightgreen";
+				document.forms[0].tbGameTokenPurchasesOutput3.style.background = "lightgreen";
+				document.forms[0].tbGameTokenSalesOutput3.style.background = "lightgreen";
+				tr_g3.style.background = "lightgreen";
+			}
+
+			document.forms[0].tbGamePlayerNameOutput3.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerGameNetWorth);
+			document.forms[0].tbGameNetWorthOutput3.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameBidIncomeExpense);
+			document.forms[0].tbGameBidIncExpOutput3.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameSavingsInterestEarned);
+			document.forms[0].tbGameInterestIncOutput3.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameLoanInterestPaid);
+			document.forms[0].tbGameLoanExpOutput3.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenPurchases); 
+			document.forms[0].tbGameTokenPurchasesOutput3.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenSales);
+			document.forms[0].tbGameTokenSalesOutput3.value = z;
+		}
+		if (i == 3) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbGamePlayerNameOutput4.style.background = "lightgreen";
+				document.forms[0].tbGameNetWorthOutput4.style.background = "lightgreen";
+				document.forms[0].tbGameBidIncExpOutput4.style.background = "lightgreen";
+				document.forms[0].tbGameInterestIncOutput4.style.background = "lightgreen";
+				document.forms[0].tbGameLoanExpOutput4.style.background = "lightgreen";
+				document.forms[0].tbGameTokenPurchasesOutput4.style.background = "lightgreen";
+				document.forms[0].tbGameTokenSalesOutput4.style.background = "lightgreen";
+				tr_g4.style.background = "lightgreen";
+			}
+
+			document.forms[0].tbGamePlayerNameOutput4.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerGameNetWorth);
+			document.forms[0].tbGameNetWorthOutput4.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameBidIncomeExpense);
+			document.forms[0].tbGameBidIncExpOutput4.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameSavingsInterestEarned);
+			document.forms[0].tbGameInterestIncOutput4.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameLoanInterestPaid);
+			document.forms[0].tbGameLoanExpOutput4.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenPurchases); 
+			document.forms[0].tbGameTokenPurchasesOutput4.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenSales);
+			document.forms[0].tbGameTokenSalesOutput4.value = z;
+		}
+		if (i == 4) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbGamePlayerNameOutput5.style.background = "lightgreen";
+				document.forms[0].tbGameNetWorthOutput5.style.background = "lightgreen";
+				document.forms[0].tbGameBidIncExpOutput5.style.background = "lightgreen";
+				document.forms[0].tbGameInterestIncOutput5.style.background = "lightgreen";
+				document.forms[0].tbGameLoanExpOutput5.style.background = "lightgreen";
+				document.forms[0].tbGameTokenPurchasesOutput5.style.background = "lightgreen";
+				document.forms[0].tbGameTokenSalesOutput5.style.background = "lightgreen";
+				tr_g5.style.background = "lightgreen";
+			}
+
+			document.forms[0].tbGamePlayerNameOutput5.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerGameNetWorth);
+			document.forms[0].tbGameNetWorthOutput5.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameBidIncomeExpense);
+			document.forms[0].tbGameBidIncExpOutput5.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameSavingsInterestEarned);
+			document.forms[0].tbGameInterestIncOutput5.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameLoanInterestPaid);
+			document.forms[0].tbGameLoanExpOutput5.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenPurchases); 
+			document.forms[0].tbGameTokenPurchasesOutput5.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenSales);
+			document.forms[0].tbGameTokenSalesOutput5.value = z;
+		}
+		if (i == 5) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbGamePlayerNameOutput6.style.background = "lightgreen";
+				document.forms[0].tbGameNetWorthOutput6.style.background = "lightgreen";
+				document.forms[0].tbGameBidIncExpOutput6.style.background = "lightgreen";
+				document.forms[0].tbGameInterestIncOutput6.style.background = "lightgreen";
+				document.forms[0].tbGameLoanExpOutput6.style.background = "lightgreen";
+				document.forms[0].tbGameTokenPurchasesOutput6.style.background = "lightgreen";
+				document.forms[0].tbGameTokenSalesOutput6.style.background = "lightgreen";
+				tr_g6.style.background = "lightgreen";
+			}
+
+			document.forms[0].tbGamePlayerNameOutput6.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerGameNetWorth);
+			document.forms[0].tbGameNetWorthOutput6.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameBidIncomeExpense);
+			document.forms[0].tbGameBidIncExpOutput6.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameSavingsInterestEarned);
+			document.forms[0].tbGameInterestIncOutput6.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameLoanInterestPaid);
+			document.forms[0].tbGameLoanExpOutput6.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenPurchases); 
+			document.forms[0].tbGameTokenPurchasesOutput6.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenSales);
+			document.forms[0].tbGameTokenSalesOutput6.value = z;
+		}
+		if (i == 6) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbGamePlayerNameOutput7.style.background = "lightgreen";
+				document.forms[0].tbGameNetWorthOutput7.style.background = "lightgreen";
+				document.forms[0].tbGameBidIncExpOutput7.style.background = "lightgreen";
+				document.forms[0].tbGameInterestIncOutput7.style.background = "lightgreen";
+				document.forms[0].tbGameLoanExpOutput7.style.background = "lightgreen";
+				document.forms[0].tbGameTokenPurchasesOutput7.style.background = "lightgreen";
+				document.forms[0].tbGameTokenSalesOutput7.style.background = "lightgreen";
+				tr_g7.style.background = "lightgreen";
+			}
+
+			document.forms[0].tbGamePlayerNameOutput7.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerGameNetWorth);
+			document.forms[0].tbGameNetWorthOutput7.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameBidIncomeExpense);
+			document.forms[0].tbGameBidIncExpOutput7.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameSavingsInterestEarned);
+			document.forms[0].tbGameInterestIncOutput7.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameLoanInterestPaid);
+			document.forms[0].tbGameLoanExpOutput7.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenPurchases); 
+			document.forms[0].tbGameTokenPurchasesOutput7.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenSales);
+			document.forms[0].tbGameTokenSalesOutput7.value = z;
+		}
+		if (i == 7) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbGamePlayerNameOutput8.style.background = "lightgreen";
+				document.forms[0].tbGameNetWorthOutput8.style.background = "lightgreen";
+				document.forms[0].tbGameBidIncExpOutput8.style.background = "lightgreen";
+				document.forms[0].tbGameInterestIncOutput8.style.background = "lightgreen";
+				document.forms[0].tbGameLoanExpOutput8.style.background = "lightgreen";
+				document.forms[0].tbGameTokenPurchasesOutput8.style.background = "lightgreen";
+				document.forms[0].tbGameTokenSalesOutput8.style.background = "lightgreen";
+				tr_g8.style.background = "lightgreen";
+			}
+
+			document.forms[0].tbGamePlayerNameOutput8.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerGameNetWorth);
+			document.forms[0].tbGameNetWorthOutput8.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameBidIncomeExpense);
+			document.forms[0].tbGameBidIncExpOutput8.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameSavingsInterestEarned);
+			document.forms[0].tbGameInterestIncOutput8.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameLoanInterestPaid);
+			document.forms[0].tbGameLoanExpOutput8.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenPurchases); 
+			document.forms[0].tbGameTokenPurchasesOutput8.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenSales);
+			document.forms[0].tbGameTokenSalesOutput8.value = z;
+		}
+		if (i == 8) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbGamePlayerNameOutput9.style.background = "lightgreen";
+				document.forms[0].tbGameNetWorthOutput9.style.background = "lightgreen";
+				document.forms[0].tbGameBidIncExpOutput9.style.background = "lightgreen";
+				document.forms[0].tbGameInterestIncOutput9.style.background = "lightgreen";
+				document.forms[0].tbGameLoanExpOutput9.style.background = "lightgreen";
+				document.forms[0].tbGameTokenPurchasesOutput9.style.background = "lightgreen";
+				document.forms[0].tbGameTokenSalesOutput9.style.background = "lightgreen";
+				tr_g9.style.background = "lightgreen";
+			}
+
+			document.forms[0].tbGamePlayerNameOutput9.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerGameNetWorth);
+			document.forms[0].tbGameNetWorthOutput9.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameBidIncomeExpense);
+			document.forms[0].tbGameBidIncExpOutput9.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameSavingsInterestEarned);
+			document.forms[0].tbGameInterestIncOutput9.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameLoanInterestPaid);
+			document.forms[0].tbGameLoanExpOutput9.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenPurchases); 
+			document.forms[0].tbGameTokenPurchasesOutput9.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenSales);
+			document.forms[0].tbGameTokenSalesOutput9.value = z;
+		}
+		if (i == 9) {
+			if (arrPlayers[i].playerID == MyPlayerID) {
+				document.forms[0].tbGamePlayerNameOutput10.style.background = "lightgreen";
+				document.forms[0].tbGameNetWorthOutput10.style.background = "lightgreen";
+				document.forms[0].tbGameBidIncExpOutput10.style.background = "lightgreen";
+				document.forms[0].tbGameInterestIncOutput10.style.background = "lightgreen";
+				document.forms[0].tbGameLoanExpOutput10.style.background = "lightgreen";
+				document.forms[0].tbGameTokenPurchasesOutput10.style.background = "lightgreen";
+				document.forms[0].tbGameTokenSalesOutput10.style.background = "lightgreen";
+				tr_g10.style.background = "lightgreen";
+			}
+
+			document.forms[0].tbGamePlayerNameOutput10.value = PlayerName[i];
+			z = MakeCurrency(arrPlayers[i].playerGameNetWorth);
+			document.forms[0].tbGameNetWorthOutput10.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameBidIncomeExpense);
+			document.forms[0].tbGameBidIncExpOutput10.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameSavingsInterestEarned);
+			document.forms[0].tbGameInterestIncOutput10.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameLoanInterestPaid);
+			document.forms[0].tbGameLoanExpOutput10.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenPurchases); 
+			document.forms[0].tbGameTokenPurchasesOutput10.value = z;
+			z = MakeCurrency(arrPlayers[i].playerGameTokenSales);
+			document.forms[0].tbGameTokenSalesOutput10.value = z;
+		}
+	}
+
+	document.getElementById("div_topline").style.display = "none";
+	document.getElementById("div_data").style.display = "block";
+
+	document.forms[0].tbCycleHeadingOutput.value = "Current Cycle Totals:";
+	document.getElementById("tbCycleHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbCyclePlayerHeadingOutput.value = "Player";
+	document.getElementById("tbCyclePlayerHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbCycleNetWorthHeadingOutput.value = "Net Worth   ";
+	document.getElementById("tbCycleNetWorthHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbCycleBidHeadingOutput.value = "Bid Income/Expense";
+	document.getElementById("tbCycleBidHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbCycleInterestIncomeHeadingOutput.value = "Interest Income   ";
+	document.getElementById("tbCycleInterestIncomeHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbCycleLoanExpenseHeadingOutput.value = "Loan Expenses   ";
+	document.getElementById("tbCycleLoanExpenseHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbCycleTokenPurchasesHeadingOutput.value = "Token Purchases   ";
+	document.getElementById("tbCycleTokenPurchasesHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbCycleTokenSalesHeadingOutput.value = "Token Sales   ";
+	document.getElementById("tbCycleTokenSalesHeadingOutput").style.fontWeight = "900";
+
+	if (GameOver == true) {
+		document.forms[0].tbGameHeadingOutput.value = "Game Totals: CONGRATULATIONS!!! " + Winner + " wins the biggest portion of Uncle Morey's Estate :)";
+		document.forms[0].tbGameHeadingOutput.style.background = "yellow";
+		tr_gamehead.style.background = "yellow";
+	} else {
+		document.forms[0].tbGameHeadingOutput.value = "Game Totals:";
+	}
+	document.getElementById("tbGameHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbGamePlayerHeadingOutput.value = "Player";
+	document.getElementById("tbGamePlayerHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbGameNetWorthHeadingOutput.value = "Net Worth   ";
+	document.getElementById("tbGameNetWorthHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbGameBidHeadingOutput.value = "Bid Income/Expense";
+	document.getElementById("tbGameBidHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbGameInterestIncomeHeadingOutput.value = "Interest Income   ";
+	document.getElementById("tbGameInterestIncomeHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbGameLoanExpenseHeadingOutput.value = "Loan Expenses   ";
+	document.getElementById("tbGameLoanExpenseHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbGameTokenPurchasesHeadingOutput.value = "Token Purchases   ";
+	document.getElementById("tbGameTokenPurchasesHeadingOutput").style.fontWeight = "900";
+
+	document.forms[0].tbGameTokenSalesHeadingOutput.value = "Token Sales   ";
+	document.getElementById("tbGameTokenSalesHeadingOutput").style.fontWeight = "900";
+
+	arrPlayers.sort(function (a, b) {return a.playerID - b.playerID});
+
+	return;
+}
+
+</script>
+</head>
+
+<body bgcolor="#FFFFFF" onload="OnloadPage()">
+
+<form name="fmStats" id="fmStats">
+  <font size="10" face="Arial">
+
+  <div id="div_topline" style="display:block" align="left">
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="40%">
+    <tr align="left">
+      <td colspan="2" width="500">You have not joined a game yet or the game has not started.</td>
+    </tr>
+   </table>
+  </div>
+
+  <div id="div_data" style="display:block" align="left">
+
+   <table align="center" border="0" cellPadding="0" cellSpacing="0" width="70%">
+    <tr align="left">
+      <td colspan="1" width="20"><input id="tbStatusHeadingOutput" name="tbStatusHeadingOutput" readOnly size="20" style="border: medium none"></td>
+      <td align="left" colspan="6" width="130"><input id="tbStatus1Output" name="tbStatus1Output" readOnly size="130" style="border: medium none"></td>
+    </tr> 
+    <tr align="left">
+      <td align="left" colspan="7" width="160"><input id="tbStatus2Output" name="tbStatus2Output" readOnly size="160" style="border: medium none"></td>
+    </tr>
+    <tr><td>&nbsp;</td></tr>
+   </table>
+
+   <table align="center" border="1" cellPadding="0" cellSpacing="0" width="70%">
+    <tr id="cycle_head" align="left">
+      <td colspan="7" width="25"><input id="tbCycleHeadingOutput" name="tbCycleHeadingOutput" readOnly size="25" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_c0" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerHeadingOutput" name="tbCyclePlayerHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthHeadingOutput" name="tbCycleNetWorthHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidHeadingOutput" name="tbCycleBidHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncomeHeadingOutput" name="tbCycleInterestIncomeHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpenseHeadingOutput" name="tbCycleLoanExpenseHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesHeadingOutput" name="tbCycleTokenPurchasesHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesHeadingOutput" name="tbCycleTokenSalesHeadingOutput" readOnly size="15" style="border: medium none"></td>
+    </tr>    
+    <tr id="tr_c1" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerNameOutput1" name="tbCyclePlayerNameOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthOutput1" name="tbCycleNetWorthOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidIncExpOutput1" name="tbCycleBidIncExpOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncOutput1" name="tbCycleInterestIncOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpOutput1" name="tbCycleLoanExpOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesOutput1" name="tbCycleTokenPurchasesOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesOutput1" name="tbCycleTokenSalesOutput1" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_c2" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerNameOutput2" name="tbCyclePlayerNameOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthOutput2" name="tbCycleNetWorthOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidIncExpOutput2" name="tbCycleBidIncExpOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncOutput2" name="tbCycleInterestIncOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpOutput2" name="tbCycleLoanExpOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesOutput2" name="tbCycleTokenPurchasesOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesOutput2" name="tbCycleTokenSalesOutput2" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_c3" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerNameOutput3" name="tbCyclePlayerNameOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthOutput3" name="tbCycleNetWorthOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidIncExpOutput3" name="tbCycleBidIncExpOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncOutput3" name="tbCycleInterestIncOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpOutput3" name="tbCycleLoanExpOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesOutput3" name="tbCycleTokenPurchasesOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesOutput3" name="tbCycleTokenSalesOutput3" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_c4" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerNameOutput4" name="tbCyclePlayerNameOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthOutput4" name="tbCycleNetWorthOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidIncExpOutput4" name="tbCycleBidIncExpOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncOutput4" name="tbCycleInterestIncOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpOutput4" name="tbCycleLoanExpOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesOutput4" name="tbCycleTokenPurchasesOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesOutput4" name="tbCycleTokenSalesOutput4" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_c5" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerNameOutput5" name="tbCyclePlayerNameOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthOutput5" name="tbCycleNetWorthOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidIncExpOutput5" name="tbCycleBidIncExpOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncOutput5" name="tbCycleInterestIncOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpOutput5" name="tbCycleLoanExpOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesOutput5" name="tbCycleTokenPurchasesOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesOutput5" name="tbCycleTokenSalesOutput5" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_c6" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerNameOutput6" name="tbCyclePlayerNameOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthOutput6" name="tbCycleNetWorthOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidIncExpOutput6" name="tbCycleBidIncExpOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncOutput6" name="tbCycleInterestIncOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpOutput6" name="tbCycleLoanExpOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesOutput6" name="tbCycleTokenPurchasesOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesOutput6" name="tbCycleTokenSalesOutput6" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_c7" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerNameOutput7" name="tbCyclePlayerNameOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthOutput7" name="tbCycleNetWorthOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidIncExpOutput7" name="tbCycleBidIncExpOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncOutput7" name="tbCycleInterestIncOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpOutput7" name="tbCycleLoanExpOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesOutput7" name="tbCycleTokenPurchasesOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesOutput7" name="tbCycleTokenSalesOutput7" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_c8" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerNameOutput8" name="tbCyclePlayerNameOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthOutput8" name="tbCycleNetWorthOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidIncExpOutput8" name="tbCycleBidIncExpOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncOutput8" name="tbCycleInterestIncOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpOutput8" name="tbCycleLoanExpOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesOutput8" name="tbCycleTokenPurchasesOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesOutput8" name="tbCycleTokenSalesOutput8" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_c9" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerNameOutput9" name="tbCyclePlayerNameOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthOutput9" name="tbCycleNetWorthOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidIncExpOutput9" name="tbCycleBidIncExpOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncOutput9" name="tbCycleInterestIncOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpOutput9" name="tbCycleLoanExpOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesOutput9" name="tbCycleTokenPurchasesOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesOutput9" name="tbCycleTokenSalesOutput9" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_c10" align="left">
+      <td colspan="1" width="15"><input id="tbCyclePlayerNameOutput10" name="tbCyclePlayerNameOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleNetWorthOutput10" name="tbCycleNetWorthOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleBidIncExpOutput10" name="tbCycleBidIncExpOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleInterestIncOutput10" name="tbCycleInterestIncOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleLoanExpOutput10" name="tbCycleLoanExpOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenPurchasesOutput10" name="tbCycleTokenPurchasesOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbCycleTokenSalesOutput10" name="tbCycleTokenSalesOutput10" readOnly size="15" style="border: medium none"></td>
+    </tr>
+
+   </table><p>
+
+   <table align="center" border="1" cellPadding="0" cellSpacing="0" width="70%">
+    <tr id="tr_gamehead" align="left">
+      <td colspan="7" width="90"><input id="tbGameHeadingOutput" name="tbGameHeadingOutput" readOnly size="90" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_g0" align="left">
+      <td colspan="1" width="15"><input id="tbGamePlayerHeadingOutput" name="tbGamePlayerHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthHeadingOutput" name="tbGameNetWorthHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidHeadingOutput" name="tbGameBidHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncomeHeadingOutput" name="tbGameInterestIncomeHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpenseHeadingOutput" name="tbGameLoanExpenseHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesHeadingOutput" name="tbGameTokenPurchasesHeadingOutput" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesHeadingOutput" name="tbGameTokenSalesHeadingOutput" readOnly size="15" style="border: medium none"></td>
+    </tr>
+
+    <tr id="tr_g1"align="left">
+      <td colspan="1" width="15"><input id="tbGamePlayerNameOutput1" name="tbGamePlayerNameOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthOutput1" name="tbGameNetWorthOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidIncExpOutput1" name="tbGameBidIncExpOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncOutput1" name="tbGameInterestIncOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpOutput1" name="tbGameLoanExpOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesOutput1" name="tbGameTokenPurchasesOutput1" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesOutput1" name="tbGameTokenSalesOutput1" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_g2" align="left" >
+      <td colspan="1" width="15"><input id="tbGamePlayerNameOutput2" name="tbGamePlayerNameOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthOutput2" name="tbGameNetWorthOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidIncExpOutput2" name="tbGameBidIncExpOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncOutput2" name="tbGameInterestIncOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpOutput2" name="tbGameLoanExpOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesOutput2" name="tbGameTokenPurchasesOutput2" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesOutput2" name="tbGameTokenSalesOutput2" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_g3" align="left">
+      <td colspan="1" width="15"><input id="tbGamePlayerNameOutput3" name="tbGamePlayerNameOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthOutput3" name="tbGameNetWorthOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidIncExpOutput3" name="tbGameBidIncExpOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncOutput3" name="tbGameInterestIncOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpOutput3" name="tbGameLoanExpOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesOutput3" name="tbGameTokenPurchasesOutput3" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesOutput3" name="tbGameTokenSalesOutput3" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_g4" align="left">
+      <td colspan="1" width="15"><input id="tbGamePlayerNameOutput4" name="tbGamePlayerNameOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthOutput4" name="tbGameNetWorthOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidIncExpOutput4" name="tbGameBidIncExpOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncOutput4" name="tbGameInterestIncOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpOutput4" name="tbGameLoanExpOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesOutput4" name="tbGameTokenPurchasesOutput4" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesOutput4" name="tbGameTokenSalesOutput4" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_g5" align="left">
+      <td colspan="1" width="15"><input id="tbGamePlayerNameOutput5" name="tbGamePlayerNameOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthOutput5" name="tbGameNetWorthOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidIncExpOutput5" name="tbGameBidIncExpOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncOutput5" name="tbGameInterestIncOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpOutput5" name="tbGameLoanExpOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesOutput5" name="tbGameTokenPurchasesOutput5" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesOutput5" name="tbGameTokenSalesOutput5" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_g6" align="left">
+      <td colspan="1" width="15"><input id="tbGamePlayerNameOutput6" name="tbGamePlayerNameOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthOutput6" name="tbGameNetWorthOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidIncExpOutput6" name="tbGameBidIncExpOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncOutput6" name="tbGameInterestIncOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpOutput6" name="tbGameLoanExpOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesOutput6" name="tbGameTokenPurchasesOutput6" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesOutput6" name="tbGameTokenSalesOutput6" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_g7" align="left">
+      <td colspan="1" width="15"><input id="tbGamePlayerNameOutput7" name="tbGamePlayerNameOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthOutput7" name="tbGameNetWorthOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidIncExpOutput7" name="tbGameBidIncExpOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncOutput7" name="tbGameInterestIncOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpOutput7" name="tbGameLoanExpOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesOutput7" name="tbGameTokenPurchasesOutput7" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesOutput7" name="tbGameTokenSalesOutput7" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_g8" align="left">
+      <td colspan="1" width="15"><input id="tbGamePlayerNameOutput8" name="tbGamePlayerNameOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthOutput8" name="tbGameNetWorthOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidIncExpOutput8" name="tbGameBidIncExpOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncOutput8" name="tbGameInterestIncOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpOutput8" name="tbGameLoanExpOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesOutput8" name="tbGameTokenPurchasesOutput8" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesOutput8" name="tbGameTokenSalesOutput8" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_g9" align="left">
+      <td colspan="1" width="15"><input id="tbGamePlayerNameOutput9" name="tbGamePlayerNameOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthOutput9" name="tbGameNetWorthOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidIncExpOutput9" name="tbGameBidIncExpOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncOutput9" name="tbGameInterestIncOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpOutput9" name="tbGameLoanExpOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesOutput9" name="tbGameTokenPurchasesOutput9" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesOutput9" name="tbGameTokenSalesOutput9" readOnly size="15" style="border: medium none"></td>
+    </tr>
+    <tr id="tr_g10" align="left">
+      <td colspan="1" width="15"><input id="tbGamePlayerNameOutput10" name="tbGamePlayerNameOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameNetWorthOutput10" name="tbGameNetWorthOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameBidIncExpOutput10" name="tbGameBidIncExpOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameInterestIncOutput10" name="tbGameInterestIncOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameLoanExpOutput10" name="tbGameLoanExpOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenPurchasesOutput10" name="tbGameTokenPurchasesOutput10" readOnly size="15" style="border: medium none"></td>
+      <td colspan="1" width="15"><input id="tbGameTokenSalesOutput10" name="tbGameTokenSalesOutput10" readOnly size="15" style="border: medium none"></td>
+    </tr>
+   </table>
+  </div>
+
+</font>
+</form>
+</body>
+</html>
